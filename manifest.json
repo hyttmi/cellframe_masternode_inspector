@@ -1,8 +1,8 @@
 {
-    "name": "cellframe-masternode-stats",
+    "name": "cellframe-masternode-inspector",
     "version": "1.00",
     "author": "Mika Hyttinen (@CELLgainz)",
     "dependencies": [],
-    "description": "This plugin allows you to view your Cellframe masternode stats.",
+    "description": "This plugin allows you to view your Cellframe masternode stats and perform various management tasks directly from the interface.",
     "type": "python"
 }
