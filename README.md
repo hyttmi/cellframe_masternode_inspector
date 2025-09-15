@@ -1,6 +1,6 @@
 # Cellframe Masternode Inspector
 
-Cellframe Masternode Inspector is a Python-based plugin for retrieving and displaying detailed statistics about your Cellframe node and supported networks. It provides both **system-level** and **network-level** insights via a simple HTTP API using GET requests, authenticated with an access token.
+Cellframe Masternode Inspector is a Python-based plugin for retrieving and displaying detailed statistics about your Cellframe node and all supported networks. It provides both **system-level** and **network-level** insights via a simple HTTP API using GET requests, authenticated with an access token.
 
 ---
 
@@ -8,6 +8,7 @@ Cellframe Masternode Inspector is a Python-based plugin for retrieving and displ
 
 - **System Stats**: Node uptime, version, CPU/memory usage, hostname, service status, and more (always live data).
 - **Network Stats**: Block counts, chain size, rewards, wallet balances, signing stats, and more (cached for fast access).
+- **Multi-Network Support**: Inspector gathers and caches stats for all networks running on your node (e.g. `Backbone`, `KelVPN`, and others).
 - **Batch Actions**: Request multiple stats at once via a single query.
 - **Easy Authentication**: Uses an auto-generated access token (saved in `token.txt`).
 - **Flexible Output**: Query specific metrics or use `all` to get everything.
@@ -21,9 +22,11 @@ Cellframe Masternode Inspector is a Python-based plugin for retrieving and displ
   Always return live data directly from your node.
 
 - **Network Actions:**
-  All network data (except for `autocollect_status` and `network_status`) is served from a cache for fast access.
+  All network data (except for `autocollect_status` and `network_status`) is served from a per-network cache for fast access.
+  - The inspector maintains a separate cache for each network supported by your node.
   - The actions `autocollect_status` and `network_status` always fetch live data.
   - All other network actions (e.g. block counts, rewards, daily stats) are served from cached values, which are refreshed at the interval specified in the config.
+  - The cacher offloads most work to fast RPC nodes when available. For wallet operations, if RPC nodes are unavailable, it will automatically fall back to using your local node socket for these operations only.
 
 ---
 
@@ -170,6 +173,8 @@ The value for `network` should be the name of the network as configured in your 
 - `KelVPN`
 - (or any other network your node is supporting)
 
+The inspector supports querying all networks that your node is running, and maintains a separate cache for each network.
+
 **Example:**
 
 ```bash
@@ -178,8 +183,10 @@ curl "http://localhost:8079/mninspector?action=block_count&network=KelVPN&access
 ```
 
 **Note:**
-All network actions except `autocollect_status` and `network_status` are served from a cache for fast access.
+All network actions except `autocollect_status` and `network_status` are served from a per-network cache for fast access.
 `autocollect_status` and `network_status` are always live.
+
+The cacher offloads most network data fetching to fast RPC nodes, but for wallet operations will automatically fall back to using your local node socket if no RPC nodes are available.
 
 ### Batch Requests
 
@@ -260,44 +267,44 @@ GET http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN
 ### Network Actions List
 
 - `autocollect_status` — Status of autocollect for the network (live).
-- `block_count` — Number of blocks in the chain (cached).
-- `cache_last_updated` — When network cache was last updated (cached).
-- `chain_size` — Chain size (storage, cached).
-- `current_block_reward` — Current reward per block (cached).
-- `first_signed_blocks_count` — Count of first signed blocks (cached).
-- `first_signed_blocks_daily` — Daily stats of first signed blocks (last N days, where N = `days_cutoff`, cached).
-- `first_signed_blocks_daily_amount` — Total number of first signed blocks for the cutoff period (cached).
-- `first_signed_blocks_earliest` — Earliest first signed block (cached).
-- `first_signed_blocks_latest` — Latest first signed block (cached).
-- `first_signed_blocks_today_amount` — Amount of first signed blocks today (cached).
-- `first_signed_blocks_today` — First signed blocks today (cached).
-- `first_signed_blocks_yesterday_amount` — Amount of first signed blocks yesterday (cached).
-- `first_signed_blocks_yesterday` — First signed blocks yesterday (cached).
+- `block_count` — Number of blocks in the chain (cached, per-network).
+- `cache_last_updated` — When network cache was last updated (cached, per-network).
+- `chain_size` — Chain size (storage, cached, per-network).
+- `current_block_reward` — Current reward per block (cached, per-network).
+- `first_signed_blocks_count` — Count of first signed blocks (cached, per-network).
+- `first_signed_blocks_daily` — Daily stats of first signed blocks (last N days, where N = `days_cutoff`, cached, per-network).
+- `first_signed_blocks_daily_amount` — Total number of first signed blocks for the cutoff period (cached, per-network).
+- `first_signed_blocks_earliest` — Earliest first signed block (cached, per-network).
+- `first_signed_blocks_latest` — Latest first signed block (cached, per-network).
+- `first_signed_blocks_today_amount` — Amount of first signed blocks today (cached, per-network).
+- `first_signed_blocks_today` — First signed blocks today (cached, per-network).
+- `first_signed_blocks_yesterday_amount` — Amount of first signed blocks yesterday (cached, per-network).
+- `first_signed_blocks_yesterday` — First signed blocks yesterday (cached, per-network).
 - `network_status` — Live network sync status (live).
-- `signed_blocks_count` — Total signed blocks (cached).
-- `signed_blocks_daily` — Daily signed block stats (last N days, where N = `days_cutoff`, cached).
-- `signed_blocks_daily_amount` — Total number of signed blocks for the cutoff period (cached).
-- `signed_blocks_earliest` — Earliest signed block (cached).
-- `signed_blocks_latest` — Latest signed block (cached).
-- `signed_blocks_today_amount` — Amount of signed blocks today (cached).
-- `signed_blocks_today` — Signed blocks today (cached).
-- `signed_blocks_yesterday_amount` — Amount of signed blocks yesterday (cached).
-- `signed_blocks_yesterday` — Signed blocks yesterday (cached).
-- `sovereign_reward_wallet_address` — Sovereign reward wallet address (cached).
-- `sovereign_wallet_balance` — Sovereign wallet balance (cached).
-- `sovereign_wallet_earliest_reward` — Earliest reward to sovereign wallet (cached).
-- `sovereign_wallet_latest_reward` — Latest reward to sovereign wallet (cached).
-- `sovereign_wallet_daily_rewards` — Daily sovereign rewards (last N days, where N = `days_cutoff`, cached).
-- `sovereign_wallet_biggest_reward` — Biggest reward to sovereign wallet (cached).
-- `sovereign_wallet_smallest_reward` — Smallest reward to sovereign wallet (cached).
-- `reward_wallet_address` — Reward wallet address (cached).
-- `reward_wallet_balance` — Reward wallet balance (cached).
-- `reward_wallet_earliest_reward` — Earliest reward to reward wallet (cached).
-- `reward_wallet_latest_reward` — Latest reward to reward wallet (cached).
-- `reward_wallet_daily_rewards` — Daily rewards (last N days, where N = `days_cutoff`, cached).
-- `reward_wallet_biggest_reward` — Biggest reward to reward wallet (cached).
-- `reward_wallet_smallest_reward` — Smallest reward to reward wallet (cached).
-- `token_price` — Current network token price (cached).
+- `signed_blocks_count` — Total signed blocks (cached, per-network).
+- `signed_blocks_daily` — Daily signed block stats (last N days, where N = `days_cutoff`, cached, per-network).
+- `signed_blocks_daily_amount` — Total number of signed blocks for the cutoff period (cached, per-network).
+- `signed_blocks_earliest` — Earliest signed block (cached, per-network).
+- `signed_blocks_latest` — Latest signed block (cached, per-network).
+- `signed_blocks_today_amount` — Amount of signed blocks today (cached, per-network).
+- `signed_blocks_today` — Signed blocks today (cached, per-network).
+- `signed_blocks_yesterday_amount` — Amount of signed blocks yesterday (cached, per-network).
+- `signed_blocks_yesterday` — Signed blocks yesterday (cached, per-network).
+- `sovereign_reward_wallet_address` — Sovereign reward wallet address (cached, per-network).
+- `sovereign_wallet_balance` — Sovereign wallet balance (cached, per-network).
+- `sovereign_wallet_earliest_reward` — Earliest reward to sovereign wallet (cached, per-network).
+- `sovereign_wallet_latest_reward` — Latest reward to sovereign wallet (cached, per-network).
+- `sovereign_wallet_daily_rewards` — Daily sovereign rewards (last N days, where N = `days_cutoff`, cached, per-network).
+- `sovereign_wallet_biggest_reward` — Biggest reward to sovereign wallet (cached, per-network).
+- `sovereign_wallet_smallest_reward` — Smallest reward to sovereign wallet (cached, per-network).
+- `reward_wallet_address` — Reward wallet address (cached, per-network).
+- `reward_wallet_balance` — Reward wallet balance (cached, per-network).
+- `reward_wallet_earliest_reward` — Earliest reward to reward wallet (cached, per-network).
+- `reward_wallet_latest_reward` — Latest reward to reward wallet (cached, per-network).
+- `reward_wallet_daily_rewards` — Daily rewards (last N days, where N = `days_cutoff`, cached, per-network).
+- `reward_wallet_biggest_reward` — Biggest reward to reward wallet (cached, per-network).
+- `reward_wallet_smallest_reward` — Smallest reward to reward wallet (cached, per-network).
+- `token_price` — Current network token price (cached, per-network).
 
 ---
 
