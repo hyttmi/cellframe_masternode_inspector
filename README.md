@@ -26,7 +26,7 @@ Cellframe Masternode Inspector is a Python-based plugin for retrieving and displ
   - The inspector maintains a separate cache for each network supported by your node.
   - The actions `autocollect_status` and `network_status` always fetch live data.
   - All other network actions (e.g. block counts, rewards, daily stats) are served from cached values, which are refreshed at the interval specified in the config.
-  - The cacher offloads most work to fast RPC nodes when available. For wallet operations, if RPC nodes are unavailable, it will automatically fall back to using your local node socket for these operations only.
+  - The cacher offloads work to fast RPC nodes when appropriate. Fallback to local node is supported if RPC nodes are unresponsive.
 
 ---
 
