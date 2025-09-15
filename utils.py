@@ -118,9 +118,7 @@ class Utils:
                 matches = re.findall(r"(\d\.\d\-\d+)", response.text)
                 if matches:
                     versions = [match.replace("-", ".") for match in matches]
-                    logger.debug(f"Found versions: {versions}")
                     latest_version = max(versions, key=version.parse)
-                    logger.debug(f"Latest node version: {latest_version}")
                     return latest_version
                 return None
             logger.warning(f"Error fetching latest version, status code: {response.status_code}")

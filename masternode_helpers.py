@@ -110,7 +110,8 @@ class MasternodeHelpers:
             if response:
                 count = response['result'][0]
                 logger.debug(f"Fetched block count of {count} for {network}")
-                return count
+                block_count = next(iter(count.values()))
+                return block_count
             return 0
         except Exception as e:
             logger.error(f"An error occurred while fetching block count for {network}: {e}", exc_info=True)
