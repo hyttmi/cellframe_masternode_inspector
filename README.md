@@ -100,8 +100,8 @@ You can configure the inspector in **two ways**:
 | access_token_entropy   | 64             | Entropy (length) of generated access token   |
 | days_cutoff            | 90             | Number of days for daily blocks and rewards history |
 | cache_refresh_interval | 10             | Cache refresh interval in minutes            |
-| gzip_responses         | False          | Enable gzip compression for HTTP responses   |
-| debug                  | False          | Enable debug logging                         |
+| gzip_responses         | false          | Enable gzip compression for HTTP responses   |
+| debug                  | false          | Enable debug logging                         |
 | plugin_url             | mninspector    | URL endpoint for the plugin                  |
 
 **Example:**
@@ -110,8 +110,8 @@ You can configure the inspector in **two ways**:
 access_token_entropy=128
 days_cutoff=30
 cache_refresh_interval=5
-gzip_responses=True
-debug=True
+gzip_responses=true
+debug=true
 plugin_url=mninspector
 ```
 
