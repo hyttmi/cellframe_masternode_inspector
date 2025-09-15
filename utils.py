@@ -1,4 +1,4 @@
-import os, uuid, json, re, requests, requests_unixsocket, secrets
+import os, json, re, requests, requests_unixsocket, secrets
 from http.client import RemoteDisconnected
 from logconfig import logger
 from datetime import datetime, timezone
