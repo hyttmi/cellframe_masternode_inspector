@@ -90,23 +90,22 @@ class Utils:
     def get_current_script_path(self):
         return os.path.dirname(os.path.abspath(__file__))
 
-    def generate_random_token(self, length=Config.ACCESS_TOKEN_LENGTH):
-        if length > 64:
-            logger.warning("Token length too long, setting to 64.")
-            length = 64
-        elif length < 16:
-            logger.warning("Token length too short, setting to 16.")
-            length = 16
+    def generate_random_token(self, entropy=Config.ACCESS_TOKEN_ENTROPY):
+        if entropy > 64:
+            logger.warning("Token entropy too high, setting to 64.")
+            entropy = 64
+        elif entropy < 16:
+            logger.warning("Token entropy too low, setting to 16.")
+            entropy = 16
         token_file = os.path.join(self._current_script_path, "token.txt")
         token = None
         if os.path.isfile(token_file):
             with open(token_file, "r") as f:
                 token = f.read().strip()
                 if token:
-                    logger.debug(f"Using existing token from file! Length: {len(token)}")
+                    logger.debug(f"Using existing token from file!")
                     return token
-        token = secrets.token_urlsafe(length)
-        logger.debug(f"Generated new access token! Length: {length}")
+        token = secrets.token_urlsafe(entropy)
         with open(token_file, "w") as f:
             f.write(token)
         return token

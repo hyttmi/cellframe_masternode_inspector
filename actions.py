@@ -43,6 +43,7 @@ class Actions:
         "current_block_reward": lambda network: get_cache_for_network(network).get("current_block_reward"),
         "first_signed_blocks_count": lambda network: get_cache_for_network(network).get("first_signed_blocks_count"),
         "first_signed_blocks_daily": lambda network: get_cache_for_network(network).get("first_signed_blocks_daily"),
+        "first_signed_blocks_daily_amount": lambda network: get_cache_for_network(network).get("first_signed_blocks_daily_amount"),
         "first_signed_blocks_earliest": lambda network: get_cache_for_network(network).get("first_signed_blocks_earliest"),
         "first_signed_blocks_latest": lambda network: get_cache_for_network(network).get("first_signed_blocks_latest"),
         "first_signed_blocks_today_amount": lambda network: get_cache_for_network(network).get("first_signed_blocks_today_amount"),
@@ -52,6 +53,7 @@ class Actions:
         "network_status": lambda network: masternode_helpers.get_network_status(network), # fetch this live, it's useful to know if node is synced
         "signed_blocks_count": lambda network: get_cache_for_network(network).get("signed_blocks_count"),
         "signed_blocks_daily": lambda network: get_cache_for_network(network).get("signed_blocks_daily"),
+        "signed_blocks_daily_amount": lambda network: get_cache_for_network(network).get("signed_blocks_daily_amount"),
         "signed_blocks_earliest": lambda network: get_cache_for_network(network).get("signed_blocks_earliest"),
         "signed_blocks_latest": lambda network: get_cache_for_network(network).get("signed_blocks_latest"),
         "signed_blocks_today_amount": lambda network: get_cache_for_network(network).get("signed_blocks_today_amount"),

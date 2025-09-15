@@ -46,7 +46,7 @@ def GET_request_handler(headers=None, query=None):
     logger.info("Access token validated successfully!")
 
     actions_requested = parsed.get("action", [])
-    networks = parsed.get("networks", [])
+    networks = parsed.get("network", [])
     network_actions_requested = parsed.get("network_action", [])
 
     if actions_requested:

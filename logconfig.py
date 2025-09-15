@@ -2,7 +2,7 @@ import logging, os
 from logging.handlers import RotatingFileHandler
 from config import Config
 
-log_file = os.path.join(os.path.dirname(__file__), "mncommander.log")
+log_file = os.path.join(os.path.dirname(__file__), "mninspector.log")
 
 handler = RotatingFileHandler(
     log_file,
@@ -16,6 +16,6 @@ formatter = logging.Formatter(
 )
 handler.setFormatter(formatter)
 
-logger = logging.getLogger("mncommander")
+logger = logging.getLogger("mninspector")
 logger.setLevel(logging.DEBUG if Config.DEBUG else logging.INFO)
 logger.addHandler(handler)

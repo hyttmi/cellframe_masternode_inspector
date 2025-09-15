@@ -5,8 +5,6 @@ from pycfhelpers.node.http.simple import CFSimpleHTTPServer, CFSimpleHTTPRequest
 from logconfig import logger
 from cacher import cacher
 
-SUPPORTED_NODE_VERSIONS = ["5.4.25","5.4.26","5.4.27", "5.4.28", "5.4.29"]
-
 def http_server():
     try:
         handler = CFSimpleHTTPRequestHandler(methods=["GET", "POST"], handler=request_handler)
@@ -18,9 +16,10 @@ def http_server():
 
 def main():
     try:
+        supported_node_versions = Config.SUPPORTED_NODE_VERSIONS
         from system_requests import system_requests
-        if system_requests._current_node_version not in SUPPORTED_NODE_VERSIONS:
-            logger.error(f"Unsupported node version: {system_requests._current_node_version}. Supported versions are: {', '.join(SUPPORTED_NODE_VERSIONS)}")
+        if system_requests._current_node_version not in supported_node_versions:
+            logger.error(f"Unsupported node version: {system_requests._current_node_version}. Supported versions are: {', '.join(supported_node_versions)}")
             return 1
         Thread(target=http_server, daemon=True).start()
         Thread(target=cacher.cache_everything, daemon=True).start()
