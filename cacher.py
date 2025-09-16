@@ -280,7 +280,7 @@ class Cacher:
                         f"Cached data for {network} in {time.time() - start_time:.2f} seconds "
                         f"(memory + disk updated)"
                     )
-                time.sleep(1)
+                time.sleep(60)
                 # And boom! We have a cache!
         except Exception as e:
             logger.error(f"An error occurred in the caching loop: {e}", exc_info=True)
