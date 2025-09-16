@@ -1,6 +1,4 @@
 from collections import defaultdict
-
-from click import option
 from logconfig import logger
 from utils import utils
 from datetime import datetime, timedelta, timezone

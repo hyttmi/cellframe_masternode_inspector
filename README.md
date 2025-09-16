@@ -173,7 +173,7 @@ The value for `network` should be the name of the network as configured in your 
 - `KelVPN`
 - (or any other network your node is supporting)
 
-The inspector supports querying all networks that your node is running, and maintains a separate cache for each network.
+The inspector supports querying all networks that your node is running, and maintains a separate cache for each network. Cache files are placed in the script directory e.g. `Backbone_cache.json` and they are loaded to memory after plugin starts.
 
 **Example:**
 
@@ -186,7 +186,7 @@ curl "http://localhost:8079/mninspector?action=block_count&network=KelVPN&access
 All network actions except `autocollect_status` and `network_status` are served from a per-network cache for fast access.
 `autocollect_status` and `network_status` are always live.
 
-The cacher offloads most network data fetching to fast RPC nodes, but for wallet operations will automatically fall back to using your local node socket if no RPC nodes are available.
+The cacher offloads wallet operations to RPC nodes with a fallback for local node socket if RPC fetching fails for some reason.
 
 ### Batch Requests
 
@@ -234,7 +234,7 @@ GET http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN
   "status": "ok",
   "data": {
     "current_node_version": "5.4.28",
-    "external_ip": "195.181.202.122",
+    "external_ip": "XXX.XXX.XXX.XXX",
     "hostname": "zenbook",
     "latest_node_version": "5.4.28",
     "node_cpu_usage": 2.625,
@@ -258,7 +258,7 @@ GET http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN
 - `hostname` — Hostname of the server.
 - `latest_node_version` — Latest available Cellframe node version.
 - `node_cpu_usage` — CPU usage of the node process.
-- `node_memory_usage` — Memory usage of the node process.
+- `node_memory_usage` — Memory usage of the node process in megabytes.
 - `node_pid` — Process ID of the node (if running).
 - `node_running_as_service` — Whether node runs as a service.
 - `node_uptime` — Node process uptime (seconds).
