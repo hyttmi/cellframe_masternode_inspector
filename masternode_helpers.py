@@ -149,16 +149,21 @@ class MasternodeHelpers:
         logger.debug(f"Fetching {'first signed' if first_signed else 'signed'} blocks for {network}")
         try:
             pkey_hash = self._active_networks_config[network]['cert_pkey_hash']
+            args = {
+                "net": network,
+                "chain": "main",
+            }
+            if pkey_hash:
+                args["pkey_hash"] = pkey_hash
+            else:
+                args["cert"] = self._active_networks_config[network]['blocks_sign_cert']
             response = utils.send_request(
                 "block",
                 f"list {'first_signed' if first_signed else 'signed'}",
-                arguments= {
-                    "net": network,
-                    "chain": "main",
-                    "pkey_hash": pkey_hash
-                    },
+                arguments=args,
                 use_unix=True
                 )
+
             if not response or "result" not in response or not response['result']:
                 return []
 
