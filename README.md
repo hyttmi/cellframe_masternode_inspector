@@ -84,7 +84,7 @@ You can configure via:
 |-------------------------|---------|---------------------------------------------------------------------|
 | access_token_entropy    | 64      | Entropy (length) of generated access token                          |
 | days_cutoff             | 90      | Number of days for daily block/reward stats                         |
-| block_count_threshold   | 20      | Cache is refreshed after this many new blocks are detected          |
+| block_count_threshold   | 10      | Cache is refreshed after this many new blocks are detected          |
 | gzip_responses          | false   | Enable gzip compression for HTTP responses                          |
 | debug                   | false   | Enable debug logging                                                |
 | plugin_url              | mninspector | URL endpoint for the plugin                                    |
