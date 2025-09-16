@@ -1,47 +1,40 @@
 # Cellframe Masternode Inspector
 
-Cellframe Masternode Inspector is a Python-based plugin for retrieving and displaying detailed statistics about your Cellframe node and all supported networks. It provides both **system-level** and **network-level** insights via a simple HTTP API using GET requests, authenticated with an access token.
+**Cellframe Masternode Inspector** is a Python plugin for monitoring and managing your Cellframe masternode. It provides live system stats and cached network stats through an authenticated HTTP API. It supports multiple networks, caches data per network, offloads work to RPC nodes when possible (with automatic local fallback for wallet operations), and refreshes its cache only when the blockchain advances by a configurable number of new blocks.
 
 ---
 
 ## Features
 
-- **System Stats**: Node uptime, version, CPU/memory usage, hostname, service status, and more (always live data).
-- **Network Stats**: Block counts, chain size, rewards, wallet balances, signing stats, and more (cached for fast access).
-- **Multi-Network Support**: Inspector gathers and caches stats for all networks running on your node (e.g. `Backbone`, `KelVPN`, and others).
-- **Batch Actions**: Request multiple stats at once via a single query.
-- **Easy Authentication**: Uses an auto-generated access token (saved in `token.txt`).
-- **Flexible Output**: Query specific metrics or use `all` to get everything.
-- **Customizable Configuration**: Configure via `cellframe-node.cfg` or drop-in config files.
+- **Live System Stats**: Uptime, CPU/memory usage, IP, hostname, version, and more.
+- **Cached Network Stats**: Block counts, chain size, block rewards, wallet balances, signing stats, token price, and more—on all supported networks.
+- **Multi-Network Support**: Works with all Cellframe networks running on your node (e.g. `Backbone`, `KelVPN`, etc.).
+- **Efficient Caching**: Per-network cache is refreshed only when N new blocks are detected (block count threshold), not on a timer.
+- **RPC Node Offload**: Inspector fetches network data from RPC nodes for fast access. Wallet queries automatically fall back to the local node if no RPC node is available.
+- **Easy Authentication**: All HTTP API requests require an access token.
+- **Batch Actions**: Query multiple metrics at once.
+- **Flexible Configuration**: Configure via node config or drop-in file.
 
 ---
 
 ## How It Works
 
-- **System Actions:**
-  Always return live data directly from your node.
-
-- **Network Actions:**
-  All network data (except for `autocollect_status` and `network_status`) is served from a per-network cache for fast access.
-  - The inspector maintains a separate cache for each network supported by your node.
-  - The actions `autocollect_status` and `network_status` always fetch live data.
-  - All other network actions (e.g. block counts, rewards, daily stats) are served from cached values, which are refreshed at the interval specified in the config.
-  - The cacher offloads work to fast RPC nodes when appropriate. Fallback to local node is supported if RPC nodes are unresponsive.
+- **System actions** always return live, up-to-date data directly from your node.
+- **Network actions** (except `network_status` and `autocollect_status`) return cached data, which is refreshed after a configurable number of new blocks are detected (see `block_count_threshold`).
+- **Wallet operations** use RPC nodes for speed, but will automatically use your local node if RPC nodes are unavailable.
+- **`network_status` and `autocollect_status`** always provide live data.
 
 ---
 
 ## Installation
 
-### 1. Locate Node Plugin Directory
+### 1. Find Your Plugin Directory
 
-Your node's plugin directory is typically:
-
+Typically:
 ```
 /opt/cellframe-node/var/lib/plugins
 ```
-
-You can confirm this path in your node configuration file (`/opt/cellframe-node/etc/cellframe-node.cfg`):
-
+Check your node config (`/opt/cellframe-node/etc/cellframe-node.cfg`):
 ```
 [plugins]
 enabled=true
@@ -51,25 +44,18 @@ py_path=../var/lib/plugins
 
 ### 2. Copy the Plugin
 
-**Note:** You usually need root access to write to the plugins directory.
-
-Clone or download the `cellframe-masternode-inspector` repository, then copy it as root:
-
+Clone and copy as root:
 ```bash
 sudo cp -r cellframe-masternode-inspector /opt/cellframe-node/var/lib/plugins/
 ```
-
-Or, if cloning directly to the plugins directory:
-
+Or clone directly:
 ```bash
 sudo git clone https://github.com/hyttmi/cellframe-masternode-inspector.git /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector
 ```
 
 ### 3. Install Dependencies
 
-**Important:**
-Install dependencies using the node's own Python environment:
-
+Use the node's Python environment:
 ```bash
 sudo /opt/cellframe-node/python/bin/pip3 install -r /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/requirements.txt
 ```
@@ -78,66 +64,58 @@ sudo /opt/cellframe-node/python/bin/pip3 install -r /opt/cellframe-node/var/lib/
 
 ## Configuration
 
-### Where to Configure
+### How to Configure
 
-You can configure the inspector in **two ways**:
+You can configure via:
 
-- **A. Main Config File:**
-  Edit `/opt/cellframe-node/etc/cellframe-node.cfg` and add a `[mninspector]` section.
+- **A. Main Config File**:
+  Add a `[mninspector]` section to `/opt/cellframe-node/etc/cellframe-node.cfg`.
 
-- **B. Drop-in Config File:**
-  Create a config file (e.g. `mninspector.cfg`) in `/opt/cellframe-node/etc/cellframe-node.cfg.d/` with the following format:
-
+- **B. Drop-in Config File**:
+  Create `/opt/cellframe-node/etc/cellframe-node.cfg.d/mninspector.cfg` with:
   ```
   [mninspector]
   key=value
   ```
 
-### Available Configuration Options
+### Supported Options
 
-| Key                    | Default         | Description                                  |
-|------------------------|----------------|----------------------------------------------|
-| access_token_entropy   | 64             | Entropy (length) of generated access token   |
-| days_cutoff            | 90             | Number of days for daily blocks and rewards history |
-| cache_refresh_interval | 10             | Cache refresh interval in minutes            |
-| gzip_responses         | false          | Enable gzip compression for HTTP responses   |
-| debug                  | false          | Enable debug logging                         |
-| plugin_url             | mninspector    | URL endpoint for the plugin                  |
+| Key                     | Default | Description                                                         |
+|-------------------------|---------|---------------------------------------------------------------------|
+| access_token_entropy    | 64      | Entropy (length) of generated access token                          |
+| days_cutoff             | 90      | Number of days for daily block/reward stats                         |
+| block_count_threshold   | 20      | Cache is refreshed after this many new blocks are detected          |
+| gzip_responses          | false   | Enable gzip compression for HTTP responses                          |
+| debug                   | false   | Enable debug logging                                                |
+| plugin_url              | mninspector | URL endpoint for the plugin                                    |
 
 **Example:**
 ```
 [mninspector]
 access_token_entropy=128
 days_cutoff=30
-cache_refresh_interval=5
+block_count_threshold=10
 gzip_responses=true
 debug=true
 plugin_url=mninspector
 ```
 
 - **Note:**
-  The `days_cutoff` option controls how many days of daily block and reward history are shown in actions with the `_daily`, `_daily_amount`, or `_daily_rewards` suffixes, and the total amount for these periods.
+  `days_cutoff` controls days shown in daily block/reward history actions (`_daily`, `_daily_amount`, `_daily_rewards`).
+  `block_count_threshold` sets how often the cache is refreshed per network.
 
 ---
 
 ## Authentication
 
-Every GET request to the Inspector API must be authenticated.
-You have two options:
+You must authenticate every request, either by:
 
-- **As a Query Parameter:**
-  Add `access_token` to your GET request:
-  ```
-  ?access_token=YOUR_API_TOKEN
-  ```
+- **Query parameter**:
+  `?access_token=YOUR_API_TOKEN`
+- **Header**:
+  `X-API-Key: YOUR_API_TOKEN`
 
-- **As a Header:**
-  Add the header:
-  ```
-  X-API-Key: YOUR_API_TOKEN
-  ```
-
-The value of `YOUR_API_TOKEN` is the string found in `token.txt` (auto-generated on first launch).
+Find your token in `token.txt` (auto-generated on first launch).
 
 ---
 
@@ -145,104 +123,67 @@ The value of `YOUR_API_TOKEN` is the string found in `token.txt` (auto-generated
 
 ### Endpoint
 
-All requests are made to the `/mninspector` endpoint on your running instance (e.g. `http://localhost:8079/mninspector`).
-If you changed the `plugin_url` config value, use that instead.
+All requests go to `/mninspector` (or your custom `plugin_url`).
 
 ### System Actions
 
-Query system-specific information about your node.
+Return live system stats.
 
 **Example:**
-
 ```bash
 curl "http://localhost:8079/mninspector?action=node_uptime&access_token=YOUR_API_TOKEN"
-```
-
-or
-
-```bash
 curl -H "X-API-Key: YOUR_API_TOKEN" "http://localhost:8079/mninspector?action=node_uptime"
 ```
 
 ### Network Actions
 
-Query network-specific information by specifying the `network` parameter.
-The value for `network` should be the name of the network as configured in your node, for example:
-
-- `Backbone`
-- `KelVPN`
-- (or any other network your node is supporting)
-
-The inspector supports querying all networks that your node is running, and maintains a separate cache for each network. Cache files are placed in the script directory e.g. `Backbone_cache.json` and they are loaded to memory after plugin starts.
-
-**Example:**
-
+Query stats for a specific network:
 ```bash
 curl "http://localhost:8079/mninspector?action=block_count&network=Backbone&access_token=YOUR_API_TOKEN"
 curl "http://localhost:8079/mninspector?action=block_count&network=KelVPN&access_token=YOUR_API_TOKEN"
 ```
+All supported networks (with per-network cache).
 
 **Note:**
-All network actions except `autocollect_status` and `network_status` are served from a per-network cache for fast access.
-`autocollect_status` and `network_status` are always live.
-
-The cacher offloads wallet operations to RPC nodes with a fallback for local node socket if RPC fetching fails for some reason.
+Most network actions return cached data, refreshed after `block_count_threshold` new blocks.
+`network_status` and `autocollect_status` are always live.
 
 ### Batch Requests
 
-You can request multiple actions at once by separating them with commas, or use `all` to fetch all available metrics.
+Query multiple actions at once (comma-separated), or use `all` for all metrics.
 
 **System Example:**
-
 ```bash
 curl "http://localhost:8079/mninspector?action=node_uptime,node_cpu_usage,node_memory_usage&access_token=YOUR_API_TOKEN"
-```
-
-or fetch all system actions:
-
-```bash
 curl "http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN"
 ```
 
 **Network Example:**
-
 ```bash
 curl "http://localhost:8079/mninspector?action=block_count,chain_size,network_status&network=Backbone&access_token=YOUR_API_TOKEN"
-```
-
-or fetch all network actions:
-
-```bash
 curl "http://localhost:8079/mninspector?action=all&network=Backbone&access_token=YOUR_API_TOKEN"
 ```
 
 ---
 
-## Request and Response Format
+## Response Format
 
-### System Actions Example
-
-**Request:**
-```
-GET http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN
-```
-
-**Response:**
+**System Actions Example:**
 ```json
 {
   "request_timestamp": "2025-09-15T15:02:46.514775+00:00",
   "status": "ok",
   "data": {
     "current_node_version": "5.4.28",
-    "external_ip": "XXX.XXX.XXX.XXX",
+    "external_ip": "195.181.202.122",
     "hostname": "zenbook",
     "latest_node_version": "5.4.28",
     "node_cpu_usage": 2.625,
     "node_memory_usage": 8959.84,
     "node_pid": 5766,
     "node_running_as_service": false,
-    "node_uptime": 1243.09466385841,
-    "system_uptime": 2199.51475572586
+    "node_uptime": 1243.094,
+    "system_uptime": 2199.514
   }
 }
 ```
@@ -251,69 +192,73 @@ GET http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN
 
 ## Supported Actions
 
-### System Actions List
+### System Actions
 
-- `current_node_version` — Current node software version.
-- `external_ip` — Public IP address of the host.
-- `hostname` — Hostname of the server.
-- `latest_node_version` — Latest available Cellframe node version.
-- `node_cpu_usage` — CPU usage of the node process.
-- `node_memory_usage` — Memory usage of the node process in megabytes.
-- `node_pid` — Process ID of the node (if running).
-- `node_running_as_service` — Whether node runs as a service.
-- `node_uptime` — Node process uptime (seconds).
-- `system_uptime` — Total system uptime (seconds).
+| Action                   | Description                                               |
+|--------------------------|----------------------------------------------------------|
+| `current_node_version`   | Current node software version                            |
+| `external_ip`            | Public IP address of host                                |
+| `hostname`               | Hostname of the server                                   |
+| `latest_node_version`    | Latest available Cellframe node version                  |
+| `node_cpu_usage`         | Node process CPU usage (%)                               |
+| `node_memory_usage`      | Node process memory usage (MB)                           |
+| `node_pid`               | Node process ID                                          |
+| `node_running_as_service`| Whether node is running as a system service (true/false) |
+| `node_uptime`            | Node process uptime (seconds)                            |
+| `system_uptime`          | Total system uptime (seconds)                            |
 
-### Network Actions List
+### Network Actions (per network)
 
-- `autocollect_status` — Status of autocollect for the network (live).
-- `block_count` — Number of blocks in the chain (cached, per-network).
-- `cache_last_updated` — When network cache was last updated (cached, per-network).
-- `chain_size` — Chain size (storage, cached, per-network).
-- `current_block_reward` — Current reward per block (cached, per-network).
-- `first_signed_blocks_count` — Count of first signed blocks (cached, per-network).
-- `first_signed_blocks_daily` — Daily stats of first signed blocks (last N days, where N = `days_cutoff`, cached, per-network).
-- `first_signed_blocks_daily_amount` — Total number of first signed blocks for the cutoff period (cached, per-network).
-- `first_signed_blocks_earliest` — Earliest first signed block (cached, per-network).
-- `first_signed_blocks_latest` — Latest first signed block (cached, per-network).
-- `first_signed_blocks_today_amount` — Amount of first signed blocks today (cached, per-network).
-- `first_signed_blocks_today` — First signed blocks today (cached, per-network).
-- `first_signed_blocks_yesterday_amount` — Amount of first signed blocks yesterday (cached, per-network).
-- `first_signed_blocks_yesterday` — First signed blocks yesterday (cached, per-network).
-- `network_status` — Live network sync status (live).
-- `signed_blocks_count` — Total signed blocks (cached, per-network).
-- `signed_blocks_daily` — Daily signed block stats (last N days, where N = `days_cutoff`, cached, per-network).
-- `signed_blocks_daily_amount` — Total number of signed blocks for the cutoff period (cached, per-network).
-- `signed_blocks_earliest` — Earliest signed block (cached, per-network).
-- `signed_blocks_latest` — Latest signed block (cached, per-network).
-- `signed_blocks_today_amount` — Amount of signed blocks today (cached, per-network).
-- `signed_blocks_today` — Signed blocks today (cached, per-network).
-- `signed_blocks_yesterday_amount` — Amount of signed blocks yesterday (cached, per-network).
-- `signed_blocks_yesterday` — Signed blocks yesterday (cached, per-network).
-- `sovereign_reward_wallet_address` — Sovereign reward wallet address (cached, per-network).
-- `sovereign_wallet_balance` — Sovereign wallet balance (cached, per-network).
-- `sovereign_wallet_earliest_reward` — Earliest reward to sovereign wallet (cached, per-network).
-- `sovereign_wallet_latest_reward` — Latest reward to sovereign wallet (cached, per-network).
-- `sovereign_wallet_daily_rewards` — Daily sovereign rewards (last N days, where N = `days_cutoff`, cached, per-network).
-- `sovereign_wallet_biggest_reward` — Biggest reward to sovereign wallet (cached, per-network).
-- `sovereign_wallet_smallest_reward` — Smallest reward to sovereign wallet (cached, per-network).
-- `reward_wallet_address` — Reward wallet address (cached, per-network).
-- `reward_wallet_balance` — Reward wallet balance (cached, per-network).
-- `reward_wallet_earliest_reward` — Earliest reward to reward wallet (cached, per-network).
-- `reward_wallet_latest_reward` — Latest reward to reward wallet (cached, per-network).
-- `reward_wallet_daily_rewards` — Daily rewards (last N days, where N = `days_cutoff`, cached, per-network).
-- `reward_wallet_biggest_reward` — Biggest reward to reward wallet (cached, per-network).
-- `reward_wallet_smallest_reward` — Smallest reward to reward wallet (cached, per-network).
-- `token_price` — Current network token price (cached, per-network).
+| Action                               | Description                                                                                       |
+|---------------------------------------|---------------------------------------------------------------------------------------------------|
+| `autocollect_status`                  | **Live.** Current status of autocollect feature (enabled/disabled, running/stopped, etc.)         |
+| `block_count`                         | **Cached.** Total number of blocks in the chain                                                   |
+| `cache_last_updated`                  | **Cached.** Timestamp of last cache refresh (ISO 8601)                                            |
+| `chain_size`                          | **Cached.** Blockchain disk size (bytes or MB/GB)                                                 |
+| `current_block_reward`                | **Cached.** Current reward per block (tokens)                                                     |
+| `first_signed_blocks_count`           | **Cached.** Number of blocks where this node was the first signer                                 |
+| `first_signed_blocks_daily`           | **Cached.** Daily counts of first signed blocks for the last N days                               |
+| `first_signed_blocks_daily_amount`    | **Cached.** Total number of first signed blocks during the cutoff period                          |
+| `first_signed_blocks_earliest`        | **Cached.** Details about the earliest block first signed by this node (block number/timestamp)   |
+| `first_signed_blocks_latest`          | **Cached.** Details about the latest block first signed by this node                              |
+| `first_signed_blocks_today_amount`    | **Cached.** Number of first signed blocks today                                                   |
+| `first_signed_blocks_today`           | **Cached.** List of first signed blocks today                                                     |
+| `first_signed_blocks_yesterday_amount`| **Cached.** Number of first signed blocks yesterday                                               |
+| `first_signed_blocks_yesterday`       | **Cached.** List of first signed blocks yesterday                                                 |
+| `network_status`                      | **Live.** Current network sync/progress status                                                    |
+| `signed_blocks_count`                 | **Cached.** Number of blocks signed by this node                                                  |
+| `signed_blocks_daily`                 | **Cached.** Daily counts of signed blocks for the last N days                                     |
+| `signed_blocks_daily_amount`          | **Cached.** Total number of signed blocks during the cutoff period                                |
+| `signed_blocks_earliest`              | **Cached.** Details about the earliest block signed by this node                                  |
+| `signed_blocks_latest`                | **Cached.** Details about the latest block signed by this node                                    |
+| `signed_blocks_today_amount`          | **Cached.** Number of blocks signed today                                                         |
+| `signed_blocks_today`                 | **Cached.** List of blocks signed today                                                           |
+| `signed_blocks_yesterday_amount`      | **Cached.** Number of blocks signed yesterday                                                     |
+| `signed_blocks_yesterday`             | **Cached.** List of blocks signed yesterday                                                       |
+| `sovereign_reward_wallet_address`     | **Cached.** Sovereign wallet address associated with the node                                     |
+| `sovereign_wallet_balance`            | **Cached.** Current balance of the sovereign wallet (tokens)                                      |
+| `sovereign_wallet_earliest_reward`    | **Cached.** Details about earliest reward received in the sovereign wallet                        |
+| `sovereign_wallet_latest_reward`      | **Cached.** Details about latest reward received in the sovereign wallet                          |
+| `sovereign_wallet_daily_rewards`      | **Cached.** Daily sovereign wallet rewards for the last N days                                    |
+| `sovereign_wallet_biggest_reward`     | **Cached.** Largest reward received by sovereign wallet                                           |
+| `sovereign_wallet_smallest_reward`    | **Cached.** Smallest reward received by sovereign wallet                                          |
+| `reward_wallet_address`               | **Cached.** Standard reward wallet address                                                        |
+| `reward_wallet_balance`               | **Cached.** Current balance of the reward wallet (tokens)                                         |
+| `reward_wallet_earliest_reward`       | **Cached.** Details about earliest reward received in the reward wallet                           |
+| `reward_wallet_latest_reward`         | **Cached.** Details about latest reward received in the reward wallet                             |
+| `reward_wallet_daily_rewards`         | **Cached.** Daily rewards for the reward wallet for the last N days                               |
+| `reward_wallet_biggest_reward`        | **Cached.** Largest reward received by reward wallet                                              |
+| `reward_wallet_smallest_reward`       | **Cached.** Smallest reward received by reward wallet                                             |
+| `token_price`                         | **Cached.** Current network token price (if available)                                            |
 
 ---
 
 ## License
 
-This project is licensed under the GNU General Public License (GPL). See the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License (GPL). See [LICENSE](LICENSE).
 
 ---
 
 ## Contributing
 
-Feel free to submit issues or pull requests!
+Pull requests and issues are welcome!
