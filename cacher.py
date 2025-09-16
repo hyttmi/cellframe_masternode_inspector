@@ -53,9 +53,6 @@ class Cacher:
                     if not sovereign_addr:
                         sovereign_addr = masternode_helpers.get_sovereign_addr(network)
 
-
-                    # Wait until node is synced, there's no point in caching if not synced
-
                     logger.info(f"Caching data for {network}...")
 
                     # Get sovereign address from config or fetch it
