@@ -4,7 +4,7 @@ import requests, psutil, socket, time, os
 
 class SystemRequests:
     def __init__(self):
-        logger.info("Initializing GlobalRequests...")
+        logger.info("Initializing SystemRequests...")
         self._node_pid = self.get_node_pid()
         self._hostname = self.get_system_hostname()
         self._is_running_as_service = self.is_running_as_service()
