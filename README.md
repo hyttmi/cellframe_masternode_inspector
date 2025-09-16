@@ -9,7 +9,7 @@
 - **Live System Stats**: Uptime, CPU/memory usage, IP, hostname, version, and more.
 - **Cached Network Stats**: Block counts, chain size, block rewards, wallet balances, signing stats, token price, and more—on all supported networks.
 - **Multi-Network Support**: Works with all Cellframe networks running on your node (e.g. `Backbone`, `KelVPN`, etc.).
-- **Efficient Caching**: Per-network cache is refreshed only when N new blocks are detected (block count threshold), not on a timer.
+- **Efficient Caching**: Per-network cache is refreshed only when N new blocks are detected (`block_count_threshold`), not on a timer.
 - **RPC Node Offload**: Inspector fetches network data from RPC nodes for fast access. Wallet queries automatically fall back to the local node if no RPC node is available.
 - **Easy Authentication**: All HTTP API requests require an access token.
 - **Batch Actions**: Query multiple metrics at once.
@@ -84,7 +84,7 @@ You can configure via:
 |-------------------------|---------|---------------------------------------------------------------------|
 | access_token_entropy    | 64      | Entropy (length) of generated access token                          |
 | days_cutoff             | 90      | Number of days for daily block/reward stats                         |
-| block_count_threshold   | 10      | Cache is refreshed after this many new blocks are detected          |
+| block_count_threshold   | 20      | Cache is refreshed after this many new blocks are detected          |
 | gzip_responses          | false   | Enable gzip compression for HTTP responses                          |
 | debug                   | false   | Enable debug logging                                                |
 | plugin_url              | mninspector | URL endpoint for the plugin                                    |
@@ -137,11 +137,19 @@ curl -H "X-API-Key: YOUR_API_TOKEN" "http://localhost:8079/mninspector?action=no
 
 ### Network Actions
 
+**Network actions must use the `network_action` parameter.**
+
 Query stats for a specific network:
 ```bash
-curl "http://localhost:8079/mninspector?action=block_count&network=Backbone&access_token=YOUR_API_TOKEN"
-curl "http://localhost:8079/mninspector?action=block_count&network=KelVPN&access_token=YOUR_API_TOKEN"
+curl "http://localhost:8079/mninspector?network_action=block_count&network=Backbone&access_token=YOUR_API_TOKEN"
+curl "http://localhost:8079/mninspector?network_action=block_count&network=KelVPN&access_token=YOUR_API_TOKEN"
 ```
+
+Multiple network actions (comma-separated):
+```bash
+curl "http://localhost:8079/mninspector?network_action=block_count,chain_size,network_status&network=Backbone&access_token=YOUR_API_TOKEN"
+```
+
 All supported networks (with per-network cache).
 
 **Note:**
@@ -160,8 +168,8 @@ curl "http://localhost:8079/mninspector?action=all&access_token=YOUR_API_TOKEN"
 
 **Network Example:**
 ```bash
-curl "http://localhost:8079/mninspector?action=block_count,chain_size,network_status&network=Backbone&access_token=YOUR_API_TOKEN"
-curl "http://localhost:8079/mninspector?action=all&network=Backbone&access_token=YOUR_API_TOKEN"
+curl "http://localhost:8079/mninspector?network_action=block_count,chain_size,network_status&network=Backbone&access_token=YOUR_API_TOKEN"
+curl "http://localhost:8079/mninspector?network_action=all&network=Backbone&access_token=YOUR_API_TOKEN"
 ```
 
 ---
@@ -194,59 +202,59 @@ curl "http://localhost:8079/mninspector?action=all&network=Backbone&access_token
 
 ### System Actions
 
-| Action                   | Description                                               |
-|--------------------------|----------------------------------------------------------|
-| `current_node_version`   | Current node software version                            |
-| `external_ip`            | Public IP address of host                                |
-| `hostname`               | Hostname of the server                                   |
-| `latest_node_version`    | Latest available Cellframe node version                  |
-| `node_cpu_usage`         | Node process CPU usage (%)                               |
-| `node_memory_usage`      | Node process memory usage (MB)                           |
-| `node_pid`               | Node process ID                                          |
-| `node_running_as_service`| Whether node is running as a system service (true/false) |
-| `node_uptime`            | Node process uptime (seconds)                            |
-| `system_uptime`          | Total system uptime (seconds)                            |
+| action                   | value/meaning                                              |
+|--------------------------|-----------------------------------------------------------|
+| `current_node_version`   | Current node software version                             |
+| `external_ip`            | Public IP address of host                                 |
+| `hostname`               | Hostname of the server                                    |
+| `latest_node_version`    | Latest available Cellframe node version                   |
+| `node_cpu_usage`         | Node process CPU usage (%)                                |
+| `node_memory_usage`      | Node process memory usage (MB)                            |
+| `node_pid`               | Node process ID                                           |
+| `node_running_as_service`| Whether node is running as a system service (true/false)  |
+| `node_uptime`            | Node process uptime (seconds)                             |
+| `system_uptime`          | Total system uptime (seconds)                             |
 
 ### Network Actions (per network)
 
-| Action                               | Description                                                                                       |
+| network_action                       | value/meaning                                                                                     |
 |---------------------------------------|---------------------------------------------------------------------------------------------------|
-| `autocollect_status`                  | **Live.** Current status of autocollect feature (enabled/disabled, running/stopped, etc.)         |
-| `block_count`                         | **Cached.** Total number of blocks in the chain                                                   |
-| `cache_last_updated`                  | **Cached.** Timestamp of last cache refresh (ISO 8601)                                            |
-| `chain_size`                          | **Cached.** Blockchain disk size (bytes or MB/GB)                                                 |
-| `current_block_reward`                | **Cached.** Current reward per block (tokens)                                                     |
-| `first_signed_blocks_count`           | **Cached.** Number of blocks where this node was the first signer                                 |
-| `first_signed_blocks_daily`           | **Cached.** Daily counts of first signed blocks for the last N days                               |
-| `first_signed_blocks_daily_amount`    | **Cached.** Total number of first signed blocks during the cutoff period                          |
-| `first_signed_blocks_earliest`        | **Cached.** Details about the earliest block first signed by this node (block number/timestamp)   |
-| `first_signed_blocks_latest`          | **Cached.** Details about the latest block first signed by this node                              |
-| `first_signed_blocks_today_amount`    | **Cached.** Number of first signed blocks today                                                   |
-| `first_signed_blocks_today`           | **Cached.** List of first signed blocks today                                                     |
-| `first_signed_blocks_yesterday_amount`| **Cached.** Number of first signed blocks yesterday                                               |
-| `first_signed_blocks_yesterday`       | **Cached.** List of first signed blocks yesterday                                                 |
-| `network_status`                      | **Live.** Current network sync/progress status                                                    |
-| `signed_blocks_count`                 | **Cached.** Number of blocks signed by this node                                                  |
-| `signed_blocks_daily`                 | **Cached.** Daily counts of signed blocks for the last N days                                     |
-| `signed_blocks_daily_amount`          | **Cached.** Total number of signed blocks during the cutoff period                                |
-| `signed_blocks_earliest`              | **Cached.** Details about the earliest block signed by this node                                  |
-| `signed_blocks_latest`                | **Cached.** Details about the latest block signed by this node                                    |
-| `signed_blocks_today_amount`          | **Cached.** Number of blocks signed today                                                         |
-| `signed_blocks_today`                 | **Cached.** List of blocks signed today                                                           |
-| `signed_blocks_yesterday_amount`      | **Cached.** Number of blocks signed yesterday                                                     |
-| `signed_blocks_yesterday`             | **Cached.** List of blocks signed yesterday                                                       |
-| `sovereign_reward_wallet_address`     | **Cached.** Sovereign wallet address associated with the node                                     |
-| `sovereign_wallet_balance`            | **Cached.** Current balance of the sovereign wallet (tokens)                                      |
+| `autocollect_status`                  | **Live.** Status of autocollect (enabled/disabled, running/stopped, etc.)                         |
+| `block_count`                         | **Cached.** Total number of blocks in network's blockchain                                        |
+| `cache_last_updated`                  | **Cached.** ISO timestamp of last cache refresh for this network                                  |
+| `chain_size`                          | **Cached.** Total chain data size (bytes/MB/GB) for this network                                 |
+| `current_block_reward`                | **Cached.** Current block reward (tokens) on this network                                         |
+| `first_signed_blocks_count`           | **Cached.** Number of blocks your node was the first to sign                                      |
+| `first_signed_blocks_daily`           | **Cached.** List: daily counts of first-signed blocks for last N days                             |
+| `first_signed_blocks_daily_amount`    | **Cached.** Sum of first-signed blocks over last N days                                           |
+| `first_signed_blocks_earliest`        | **Cached.** Details (block number, timestamp) of earliest first-signed block                      |
+| `first_signed_blocks_latest`          | **Cached.** Details (block number, timestamp) of latest first-signed block                        |
+| `first_signed_blocks_today_amount`    | **Cached.** How many first-signed blocks today                                                    |
+| `first_signed_blocks_today`           | **Cached.** List of today's first-signed blocks (numbers/timestamps)                              |
+| `first_signed_blocks_yesterday_amount`| **Cached.** How many first-signed blocks yesterday                                                |
+| `first_signed_blocks_yesterday`       | **Cached.** List of yesterday's first-signed blocks (numbers/timestamps)                          |
+| `network_status`                      | **Live.** Current network sync status (e.g., synced, chain height, etc.)                          |
+| `signed_blocks_count`                 | **Cached.** How many blocks your node signed on this network                                      |
+| `signed_blocks_daily`                 | **Cached.** List: daily counts of signed blocks for last N days                                   |
+| `signed_blocks_daily_amount`          | **Cached.** Sum of signed blocks over last N days                                                 |
+| `signed_blocks_earliest`              | **Cached.** Details (block number, timestamp) of earliest signed block                            |
+| `signed_blocks_latest`                | **Cached.** Details (block number, timestamp) of latest signed block                              |
+| `signed_blocks_today_amount`          | **Cached.** How many blocks signed today                                                          |
+| `signed_blocks_today`                 | **Cached.** List of today's signed blocks (numbers/timestamps)                                    |
+| `signed_blocks_yesterday_amount`      | **Cached.** How many blocks signed yesterday                                                      |
+| `signed_blocks_yesterday`             | **Cached.** List of yesterday's signed blocks (numbers/timestamps)                                |
+| `sovereign_reward_wallet_address`     | **Cached.** Sovereign reward wallet address (from config)                                         |
+| `sovereign_wallet_balance`            | **Cached.** Balance of sovereign wallet (tokens)                                                  |
 | `sovereign_wallet_earliest_reward`    | **Cached.** Details about earliest reward received in the sovereign wallet                        |
 | `sovereign_wallet_latest_reward`      | **Cached.** Details about latest reward received in the sovereign wallet                          |
-| `sovereign_wallet_daily_rewards`      | **Cached.** Daily sovereign wallet rewards for the last N days                                    |
+| `sovereign_wallet_daily_rewards`      | **Cached.** List: daily sovereign wallet rewards for last N days                                  |
 | `sovereign_wallet_biggest_reward`     | **Cached.** Largest reward received by sovereign wallet                                           |
 | `sovereign_wallet_smallest_reward`    | **Cached.** Smallest reward received by sovereign wallet                                          |
-| `reward_wallet_address`               | **Cached.** Standard reward wallet address                                                        |
-| `reward_wallet_balance`               | **Cached.** Current balance of the reward wallet (tokens)                                         |
+| `reward_wallet_address`               | **Cached.** Standard reward wallet address (from config)                                          |
+| `reward_wallet_balance`               | **Cached.** Balance of standard reward wallet (tokens)                                            |
 | `reward_wallet_earliest_reward`       | **Cached.** Details about earliest reward received in the reward wallet                           |
 | `reward_wallet_latest_reward`         | **Cached.** Details about latest reward received in the reward wallet                             |
-| `reward_wallet_daily_rewards`         | **Cached.** Daily rewards for the reward wallet for the last N days                               |
+| `reward_wallet_daily_rewards`         | **Cached.** List: daily rewards for standard reward wallet for last N days                        |
 | `reward_wallet_biggest_reward`        | **Cached.** Largest reward received by reward wallet                                              |
 | `reward_wallet_smallest_reward`       | **Cached.** Smallest reward received by reward wallet                                             |
 | `token_price`                         | **Cached.** Current network token price (if available)                                            |
