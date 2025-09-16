@@ -116,6 +116,19 @@ class Parsers:
             # OK, now we have the reward transactions only
             if option == "total_rewards":
                 return sum(float(tx['recv_coins']) for tx in tx_data if 'recv_coins' in tx)
+            if option == "today":
+                return sum(
+                    float(tx['recv_coins'])
+                    for tx in tx_data
+                    if datetime.fromisoformat(tx['tx_created']).date() == now.date()
+                )
+            if option == "yesterday":
+                yesterday_date = (now - timedelta(days=1)).date()
+                return sum(
+                    float(tx['recv_coins'])
+                    for tx in tx_data
+                    if datetime.fromisoformat(tx['tx_created']).date() == yesterday_date
+                )
             if option == "latest_reward":
                 return tx_data[0]
             if option == "earliest_reward":
