@@ -182,6 +182,12 @@ class Cacher:
                         tx_daily_sums = run_on_cacherpool(
                             P.parse_tx_data, tx_history, option="daily_sums"
                         ).result()
+                        tx_today_rewards = run_on_cacherpool(
+                            P.parse_tx_data, tx_history, option="today"
+                        ).result()
+                        tx_yesterday_rewards = run_on_cacherpool(
+                            P.parse_tx_data, tx_history, option="yesterday"
+                        ).result()
 
                     if sovereign_tx_history:
                         sovereign_tx_total_rewards = run_on_cacherpool(
@@ -204,6 +210,12 @@ class Cacher:
                         ).result()
                         sovereign_tx_daily_sums = run_on_cacherpool(
                             P.parse_tx_data, sovereign_tx_history, option="daily_sums"
+                        ).result()
+                        sovereign_tx_today_rewards = run_on_cacherpool(
+                            P.parse_tx_data, sovereign_tx_history, option="today"
+                        ).result()
+                        sovereign_tx_yesterday_rewards = run_on_cacherpool(
+                            P.parse_tx_data, sovereign_tx_history, option="yesterday"
                         ).result()
 
                     # ----------------------------------------------------------------
@@ -243,6 +255,8 @@ class Cacher:
                         "wallet_daily_sums": tx_daily_sums,
                         "wallet_earliest_reward": tx_earliest_reward,
                         "wallet_latest_reward": tx_latest_reward,
+                        "wallet_today_rewards": tx_today_rewards,
+                        "wallet_yesterday_rewards": tx_yesterday_rewards,
                         "wallet_smallest_reward": tx_smallest_reward,
                         "wallet_total_rewards": tx_total_rewards,
                     }
@@ -256,6 +270,8 @@ class Cacher:
                                 "sovereign_wallet_daily_sums": sovereign_tx_daily_sums,
                                 "sovereign_wallet_earliest_reward": sovereign_tx_earliest_reward,
                                 "sovereign_wallet_latest_reward": sovereign_tx_latest_reward,
+                                "sovereign_wallet_today_rewards": sovereign_tx_today_rewards,
+                                "sovereign_wallet_yesterday_rewards": sovereign_tx_yesterday_rewards,
                                 "sovereign_wallet_smallest_reward": sovereign_tx_smallest_reward,
                                 "sovereign_wallet_total_rewards": sovereign_tx_total_rewards,
                             }
