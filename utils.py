@@ -153,6 +153,9 @@ class Utils:
                 data = json.load(f)
             logger.debug(f"Data successfully loaded from {filename}")
             return data
+        except FileNotFoundError:
+            logger.warning(f"File {filename} not found!")
+            return None
         except Exception as e:
             logger.error(f"Error loading data from {filename}: {e}", exc_info=True)
             return None

@@ -12,6 +12,7 @@ class Config:
     CACHE_REFRESH_INTERVAL = int(get_config_value("mninspector", "cache_refresh_interval", 10) * 60)
     GZIP_RESPONSES = bool(get_config_value("mninspector", "gzip_responses", False))
     DEBUG = bool(get_config_value("mninspector", "debug", False))
+    BLOCK_COUNT_THRESHOLD = int(get_config_value("mninspector", "block_count_threshold", 10))
     PLUGIN_NAME = str("Cellframe Masternode Inspector")
     PLUGIN_URL = str(get_config_value("mninspector", "plugin_url", "mninspector"))
     SUPPORTED_NODE_VERSIONS = ["5.4.25","5.4.26","5.4.27", "5.4.28", "5.4.29"]

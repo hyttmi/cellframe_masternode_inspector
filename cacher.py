@@ -12,20 +12,47 @@ class Cacher:
         logger.debug("Initializing Cacher...")
         self.cache = {}
         for network in masternode_helpers._active_networks_config:
-            old_cache = utils.load_json_from_file(f"{network}_cache.json")
-            if old_cache:
-                self.cache[network] = old_cache
-                logger.debug(f"Loaded cache for {network} from disk")
+                old_cache = utils.load_json_from_file(f"{network}_cache.json")
+                if old_cache:
+                    self.cache[network] = old_cache
+                    logger.info(f"Loaded old cache for {network} from disk")
+                else:
+                    logger.info(f"No old cache file found for {network}, starting fresh")
 
     def cache_everything(self):
         try:
+            if not masternode_helpers._active_networks_config:
+                logger.warning("No active networks configured, caching will not start")
+                return
             while True:
                 for network in masternode_helpers._active_networks_config:
                     start_time = time.time()
 
-                    while masternode_helpers.get_network_status(network).get("synced") is False:
-                        logger.info(f"Node not synced for {network}, waiting 5 seconds before retrying...")
-                        time.sleep(5)
+                    # Wait until node is synced, there's no point in caching if not synced
+                    if not masternode_helpers.get_network_status(network).get("synced"):
+                        logger.info(f"{network} not synced, skipping this cycle")
+                        continue
+
+                    current_blocks_on_network = masternode_helpers.get_block_count(network)
+                    old_blocks_on_network = self.cache.get(network, {}).get("block_count", 0)
+
+                    block_diff = current_blocks_on_network - old_blocks_on_network
+
+                    if block_diff < Config.BLOCK_COUNT_THRESHOLD:
+                        logger.info(
+                            f"{network}: Block count only increased by {block_diff} "
+                            f"(old={old_blocks_on_network}, new={current_blocks_on_network}), "
+                            f"skipping this cycle"
+                        )
+                        continue
+
+                    logger.info(f"Caching data for {network}...")
+
+                    # Get sovereign address from config or fetch it
+                    sovereign_addr = masternode_helpers._active_networks_config[network].get("sovereign_addr")
+                    if not sovereign_addr:
+                        sovereign_addr = masternode_helpers.get_sovereign_addr(network)
+
 
                     # Wait until node is synced, there's no point in caching if not synced
 
@@ -253,9 +280,8 @@ class Cacher:
                         f"Cached data for {network} in {time.time() - start_time:.2f} seconds "
                         f"(memory + disk updated)"
                     )
-                logger.info(f"Cache refresh cycle completed, sleeping for {Config.CACHE_REFRESH_INTERVAL} seconds...")
+                time.sleep(1)
                 # And boom! We have a cache!
-                time.sleep(Config.CACHE_REFRESH_INTERVAL)
         except Exception as e:
             logger.error(f"An error occurred in the caching loop: {e}", exc_info=True)
 

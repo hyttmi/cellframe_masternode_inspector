@@ -4,6 +4,7 @@ from threading import Thread
 from pycfhelpers.node.http.simple import CFSimpleHTTPServer, CFSimpleHTTPRequestHandler
 from logconfig import logger
 from cacher import cacher
+from masternode_helpers import masternode_helpers
 
 def http_server():
     try:
@@ -21,8 +22,11 @@ def main():
         if system_requests._current_node_version not in supported_node_versions:
             logger.error(f"Unsupported node version: {system_requests._current_node_version}. Supported versions are: {', '.join(supported_node_versions)}")
             return 1
-        Thread(target=http_server, daemon=True).start()
+        if not masternode_helpers._active_networks_config:
+            logger.warning("No active masternode configuration found, this plugin will not function on this node!")
+            return 1
         Thread(target=cacher.cache_everything, daemon=True).start()
+        Thread(target=http_server, daemon=True).start()
     except Exception as e:
         logger.error(f"Failed to start HTTP server thread: {e}", exc_info=True)
 
@@ -30,7 +34,7 @@ def init():
     try:
         main()
         return 0
-    except Exception as e:
+    except Exception:
         return 1
 
 def deinit():
