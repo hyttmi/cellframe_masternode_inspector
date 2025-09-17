@@ -39,7 +39,7 @@ class Cacher:
 
                     if block_diff < Config.BLOCK_COUNT_THRESHOLD:
                         logger.info(
-                            f"{network}: Block count only increased by {block_diff} "
+                            f"{network}: Block count difference compared to old data is {block_diff} "
                             f"(old={old_blocks_on_network}, new={current_blocks_on_network}), "
                             f"skipping this cycle"
                         )
