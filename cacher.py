@@ -6,7 +6,6 @@ from config import Config
 from parsers import Parsers as P
 import time
 
-
 class Cacher:
     def __init__(self):
         logger.debug("Initializing Cacher...")
@@ -157,8 +156,10 @@ class Cacher:
                     # ----------------------------------------------------------------
                     tx_total_rewards = tx_latest_reward = tx_earliest_reward = None
                     tx_daily_rewards = tx_smallest_reward = tx_biggest_reward = tx_daily_sums = None
+                    tx_today_rewards = tx_yesterday_rewards = None
                     sovereign_tx_total_rewards = sovereign_tx_latest_reward = sovereign_tx_earliest_reward = sovereign_tx_daily_rewards = None
                     sovereign_tx_smallest_reward = sovereign_tx_biggest_reward = sovereign_tx_daily_sums = None
+                    sovereign_tx_today_rewards = sovereign_tx_yesterday_rewards = None
 
                     if tx_history:
                         tx_total_rewards = run_on_cacherpool(
@@ -293,6 +294,5 @@ class Cacher:
 
     def get_cache(self, network):
         return self.cache.get(network, {})
-
 
 cacher = Cacher()
