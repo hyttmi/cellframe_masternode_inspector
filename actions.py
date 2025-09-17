@@ -17,6 +17,27 @@ def get_cache_for_network(network):
         return {}
 
 
+def build_network_actions():
+    actions = {}
+    try:
+        sample_net = next(iter(masternode_helpers._active_networks_config))
+        sample_cache = get_cache_for_network(sample_net)
+    except StopIteration:
+        sample_cache = {}
+
+    for key in sample_cache.keys():
+        actions[key] = lambda network, k=key: get_cache_for_network(network).get(k)
+
+    actions.update({
+        "autocollect_status": lambda network: masternode_helpers.get_autocollect_status(network),
+        "network_status": lambda network: masternode_helpers.get_network_status(network),
+        "sovereign_reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network].get("sovereign_addr"),
+        "reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network]["wallet"],
+    })
+
+    return actions
+
+
 class Actions:
     # -------------------------
     # System actions
@@ -37,30 +58,7 @@ class Actions:
     # -------------------------
     # Network actions
     # -------------------------
-    @staticmethod
-    def build_network_actions():
-        actions = {}
-
-        try:
-            sample_net = next(iter(masternode_helpers._active_networks_config))
-            sample_cache = get_cache_for_network(sample_net)
-        except StopIteration:
-            sample_cache = {}
-
-        for key in sample_cache.keys():
-            actions[key] = lambda network, k=key: get_cache_for_network(network).get(k)
-
-        # These are not cached so we add them manually
-        actions.update({
-            "autocollect_status": lambda network: masternode_helpers.get_autocollect_status(network),
-            "network_status": lambda network: masternode_helpers.get_network_status(network),
-            "sovereign_reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network].get("sovereign_addr"),
-            "reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network]["wallet"],
-        })
-
-        return actions
-
-    NETWORK_ACTIONS = build_network_actions.__func__()
+    NETWORK_ACTIONS = build_network_actions()
 
     # -------------------------
     # Helpers
