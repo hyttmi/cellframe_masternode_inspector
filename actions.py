@@ -66,6 +66,9 @@ class Actions:
     def parse_system_actions(actions_requested):
         result = {}
 
+        if "help" in actions_requested:
+            return {"available_system_actions": list(Actions.SYSTEM_ACTIONS.keys())}
+
         actions_to_process = (
             Actions.SYSTEM_ACTIONS.keys()
             if "all" in actions_requested
@@ -83,6 +86,9 @@ class Actions:
     @staticmethod
     def parse_network_actions(networks, network_actions_requested):
         result = {}
+
+        if "help" in network_actions_requested:
+            return {"available_network_actions": list(Actions.NETWORK_ACTIONS.keys())}
 
         for net in networks:
             if net not in masternode_helpers._active_networks_config:
