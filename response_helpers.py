@@ -14,6 +14,9 @@ class ResponseHelpers:
         "Access-Control-Allow-Headers": "Content-Type, Accept-Encoding",
     }
 
+    if Config.GZIP_RESPONSES:
+        DEFAULT_HEADERS["Content-Encoding"] = "gzip"
+
     @staticmethod
     def _encode_body(data, gzip_enabled=Config.GZIP_RESPONSES):
         body = json.dumps(data).encode()
