@@ -1,4 +1,5 @@
 import json
+from wsgiref import headers
 from pycfhelpers.node.http.simple import CFSimpleHTTPResponse
 from logconfig import logger
 import json
@@ -25,6 +26,10 @@ class ResponseHelpers:
 
     @staticmethod
     def success(data, code=200, gzip_enabled=False):
+        logger.debug(f"Success response with data: {data}")
+        logger.debug(f"Gzip enabled: {gzip_enabled}, Config.GZIP_RESPONSES: {Config.GZIP_RESPONSES}")
+        logger.debug(f"ResponseHelpers.DEFAULT_HEADERS: {ResponseHelpers.DEFAULT_HEADERS}")
+        logger.debug(f"Final headers before response: {headers}")
         body, headers = ResponseHelpers._encode_body(
             {"request_timestamp": utils.now_iso(), "status": "ok", "data": data}, gzip_enabled if Config.GZIP_RESPONSES else False
         )
@@ -45,9 +50,3 @@ class ResponseHelpers:
             code=code,
             headers={**ResponseHelpers.DEFAULT_HEADERS, "Location": url},
         )
-
-    @staticmethod
-    def raw(data, code=200, gzip_enabled=False):
-        logger.debug(f"Raw response data: {data}, code: {code}")
-        body, headers = ResponseHelpers._encode_body(data, gzip_enabled)
-        return CFSimpleHTTPResponse(body=body, code=code, headers=headers)
