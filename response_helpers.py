@@ -1,5 +1,4 @@
 import json
-from wsgiref import headers
 from pycfhelpers.node.http.simple import CFSimpleHTTPResponse
 from logconfig import logger
 import json
