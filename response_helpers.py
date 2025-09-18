@@ -15,7 +15,7 @@ class ResponseHelpers:
     }
 
     @staticmethod
-    def _encode_body(data, gzip_enabled=False):
+    def _encode_body(data, gzip_enabled=Config.GZIP_RESPONSES):
         body = json.dumps(data).encode()
         headers = dict(ResponseHelpers.DEFAULT_HEADERS)
         if gzip_enabled:
@@ -25,19 +25,17 @@ class ResponseHelpers:
 
     @staticmethod
     def success(data, code=200, gzip_enabled=False):
-        logger.debug(f"Success response with data: {data}")
-        logger.debug(f"Gzip enabled: {gzip_enabled}, Config.GZIP_RESPONSES: {Config.GZIP_RESPONSES}")
-        logger.debug(f"ResponseHelpers.DEFAULT_HEADERS: {ResponseHelpers.DEFAULT_HEADERS}")
-        logger.debug(f"Final headers before response: {headers}")
         body, headers = ResponseHelpers._encode_body(
-            {"request_timestamp": utils.now_iso(), "status": "ok", "data": data}, gzip_enabled if Config.GZIP_RESPONSES else False
+            {"request_timestamp": utils.now_iso(), "status": "ok", "data": data}, gzip_enabled
         )
+        logger.debug(f"Response body size: {len(body)} bytes")
+        logger.debug(f"Response headers: {headers}")
         return CFSimpleHTTPResponse(body=body, code=code, headers=headers)
 
     @staticmethod
     def error(message, code=400, gzip_enabled=False):
         body, headers = ResponseHelpers._encode_body(
-            {"request_timestamp": utils.now_iso(), "status": "error", "message": message}, gzip_enabled if Config.GZIP_RESPONSES else False
+            {"request_timestamp": utils.now_iso(), "status": "error", "message": message}, gzip_enabled
         )
         return CFSimpleHTTPResponse(body=body, code=code, headers=headers)
 
