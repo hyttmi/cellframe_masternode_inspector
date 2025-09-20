@@ -219,7 +219,7 @@ curl "http://localhost:8079/mninspector?network_action=all&network=Backbone&acce
 
 | network_action                       | value/meaning                                                                                     |
 |---------------------------------------|---------------------------------------------------------------------------------------------------|
-| `autocollect_status`                  | **Live.** Status of autocollect (enabled/disabled, running/stopped, etc.)                         |
+| `autocollect_status`                  | **Live.** Status of autocollect (enabled/disable etc.)                         |
 | `block_count`                         | **Cached.** Total number of blocks in network's blockchain                                        |
 | `cache_last_updated`                  | **Cached.** ISO timestamp of last cache refresh for this network                                  |
 | `chain_size`                          | **Cached.** Total chain data size (bytes/MB/GB) for this network                                 |
@@ -233,7 +233,7 @@ curl "http://localhost:8079/mninspector?network_action=all&network=Backbone&acce
 | `first_signed_blocks_today`           | **Cached.** List of today's first-signed blocks (numbers/timestamps)                              |
 | `first_signed_blocks_yesterday_amount`| **Cached.** How many first-signed blocks yesterday                                                |
 | `first_signed_blocks_yesterday`       | **Cached.** List of yesterday's first-signed blocks (numbers/timestamps)                          |
-| `network_status`                      | **Live.** Current network sync status (e.g., synced, chain height, etc.)                          |
+| `network_status`                      | **Live.** Current network sync status (e.g., synced, etc.)                          |
 | `signed_blocks_count`                 | **Cached.** How many blocks your node signed on this network                                      |
 | `signed_blocks_daily`                 | **Cached.** List: daily counts of signed blocks for last N days                                   |
 | `signed_blocks_daily_amount`          | **Cached.** Sum of signed blocks over last N days                                                 |
