@@ -101,7 +101,7 @@ class Actions:
         for net in networks:
             if net not in masternode_helpers._active_networks_config:
                 logger.warning(f"Requested network '{net}' is not in active networks config.")
-                result[net] = "unsupported network"
+                result[net] = "unsupported network, supported networks are: " + ", ".join(masternode_helpers._active_networks_config.keys())
                 continue
 
             net_actions = Actions._build_network_actions_for(net)
