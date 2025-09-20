@@ -9,8 +9,9 @@ class ResponseHelpers:
     DEFAULT_HEADERS = {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST",
-        "Access-Control-Allow-Headers": "Content-Type, Accept-Encoding",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Accept-Encoding, Authorization",
+        "Access-Control-Expose-Headers": "Content-Type, Content-Encoding",
     }
 
     @staticmethod
@@ -50,3 +51,10 @@ class ResponseHelpers:
         headers = dict(ResponseHelpers.DEFAULT_HEADERS)
         headers["Location"] = url
         return CFSimpleHTTPResponse(body=b"", code=code, headers=headers)
+
+    @staticmethod
+    def options():
+        headers = dict(ResponseHelpers.DEFAULT_HEADERS)
+        headers["Content-Length"] = "0"
+        headers["Content-Type"] = "text/plain"
+        return CFSimpleHTTPResponse(body=b"", code=204, headers=headers)
