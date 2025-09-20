@@ -25,6 +25,7 @@ def request_handler(request):
             return RH.error("Method not allowed", code=405)
 
         if method == "OPTIONS":
+            logger.debug("Handling CORS preflight OPTIONS request")
             return RH.options()
 
         return GET_request_handler(headers, query)
