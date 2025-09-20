@@ -8,7 +8,7 @@ from masternode_helpers import masternode_helpers
 
 def http_server():
     try:
-        handler = CFSimpleHTTPRequestHandler(methods=["GET", "POST"], handler=request_handler)
+        handler = CFSimpleHTTPRequestHandler(methods=["GET", "POST", "OPTIONS"], handler=request_handler)
         logger.info("Registering HTTP server...")
         CFSimpleHTTPServer().register_uri_handler(uri=f"/{Config.PLUGIN_URL}", handler=handler)
         logger.info(f"HTTP server started on /{Config.PLUGIN_URL}")

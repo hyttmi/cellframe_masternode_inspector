@@ -20,9 +20,12 @@ def request_handler(request):
             f"client IP: {client_ip if client_ip else 'N/A'}"
         )
 
-        if method not in ["GET", "POST"]:
+        if method not in ["GET", "POST", "OPTIONS"]:
             logger.error(f"Method {method} not allowed for {url}")
             return RH.error("Method not allowed", code=405)
+
+        if method == "OPTIONS":
+            return RH.options()
 
         return GET_request_handler(headers, query)
 
