@@ -1,5 +1,5 @@
 from logconfig import logger
-from pycfhelpers.node.net import CFNet
+from pycfhelpers.node.net import CFNet, NetFee
 from utils import utils
 import re, requests, os
 
@@ -21,6 +21,8 @@ class MasternodeHelpers:
                 net_config = self.get_network_config(network_name)
                 if net_config:
                     self._active_networks_config[network_name] = net_config
+                    self._active_networks_config[network_name]['native_ticker'] = str(NetFee(net).native_ticker)
+
         except Exception as e:
             logger.error(f"Error fetching active networks: {e}")
 

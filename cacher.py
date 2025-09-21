@@ -244,6 +244,7 @@ class Cacher:
                         "first_signed_blocks_today": fsb_today,
                         "first_signed_blocks_yesterday_amount": fsb_yesterday_amount,
                         "first_signed_blocks_yesterday": fsb_yesterday,
+                        "native_ticker": masternode_helpers._active_networks_config[network].get('native_ticker'),
                         "signed_blocks_count": sb_total,
                         "signed_blocks_daily_amount": sb_daily_amount,
                         "signed_blocks_daily": sb_daily,
