@@ -162,6 +162,7 @@ class Cacher:
                     sovereign_tx_today_rewards = sovereign_tx_yesterday_rewards = None
 
                     if tx_history:
+                        utils.save_json_to_file(tx_history, f"{network}_reward_history.json") # Let's save this for tax purposes etc
                         tx_total_rewards = run_on_cacherpool(
                             P.parse_tx_data, tx_history, option="total_rewards"
                         ).result()
@@ -191,6 +192,7 @@ class Cacher:
                         ).result()
 
                     if sovereign_tx_history:
+                        utils.save_json_to_file(sovereign_tx_history, f"{network}_sovereign_reward_history.json") # And this too
                         sovereign_tx_total_rewards = run_on_cacherpool(
                             P.parse_tx_data, sovereign_tx_history, option="total_rewards"
                         ).result()
@@ -277,7 +279,6 @@ class Cacher:
                         )
 
                     new_data["cache_last_updated"] = utils.now_iso()
-
                     self.cache[network] = new_data
                     utils.save_json_to_file(new_data, f"{network}_cache.json")
 

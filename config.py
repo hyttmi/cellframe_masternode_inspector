@@ -9,7 +9,7 @@ def get_config_value(section, key, default=None):
 class Config:
     ACCESS_TOKEN_ENTROPY = int(get_config_value("mninspector", "access_token_entropy", 64))
     BLOCK_COUNT_THRESHOLD = int(get_config_value("mninspector", "block_count_threshold", 10))
-    DAYS_CUTOFF = int(get_config_value("mninspector", "days_cutoff", 90)) # Days
+    DAYS_CUTOFF = int(get_config_value("mninspector", "days_cutoff", 30)) # Days
     DEBUG = bool(get_config_value("mninspector", "debug", False))
     GZIP_RESPONSES = bool(get_config_value("mninspector", "gzip_responses", False))
     PLUGIN_NAME = str("Cellframe Masternode Inspector")
