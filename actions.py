@@ -22,6 +22,7 @@ class Actions:
     # System actions
     # -------------------------
     SYSTEM_ACTIONS = {
+        "active_networks": lambda: list(masternode_helpers._active_networks_config.keys()),
         "current_node_version": lambda: run_on_threadpool(system_requests.get_node_version),
         "external_ip": lambda: run_on_threadpool(system_requests.get_external_ip),
         "hostname": lambda: system_requests._hostname,
@@ -101,7 +102,7 @@ class Actions:
         for net in networks:
             if net not in masternode_helpers._active_networks_config:
                 logger.warning(f"Requested network '{net}' is not in active networks config.")
-                result[net] = "unsupported network, supported networks are: " + ", ".join(masternode_helpers._active_networks_config.keys())
+                result[net] = "unsupported network"
                 continue
 
             net_actions = Actions._build_network_actions_for(net)
