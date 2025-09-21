@@ -233,6 +233,7 @@ class Cacher:
                         "block_count": futures["block_count"].result(),
                         "chain_size": futures["chain_size"].result(),
                         "current_block_reward": futures["current_block_reward"].result(),
+                        "days_cutoff": Config.DAYS_CUTOFF, # We need to know this later
                         "first_signed_blocks_count": fsb_total,
                         "first_signed_blocks_daily_amount": fsb_daily_amount,
                         "first_signed_blocks_daily": fsb_daily,
@@ -257,7 +258,7 @@ class Cacher:
                         "reward_wallet_balance": futures["wallet_balance"].result(),
                         "reward_wallet_biggest_reward": tx_biggest_reward,
                         "reward_wallet_daily_rewards": tx_daily_rewards,
-                        "reward_wallet_daily_sums": tx_daily_sums,
+                        "reward_wallet_all_sums_daily": tx_daily_sums,
                         "reward_wallet_earliest_reward": tx_earliest_reward,
                         "reward_wallet_latest_reward": tx_latest_reward,
                         "reward_wallet_today_rewards": tx_today_rewards,
