@@ -110,6 +110,9 @@ class Parsers:
 
             tx_data = results
 
+            if option == "all":
+                return tx_data
+
             filtered = []
             now = datetime.now(timezone.utc)
 
