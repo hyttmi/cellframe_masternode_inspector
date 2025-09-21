@@ -3,3 +3,4 @@ requests==2.32.5
 requests_unixsocket==0.4.1
 psutil==7.0.0
 packaging==25.0
+Brotli==1.1.0
