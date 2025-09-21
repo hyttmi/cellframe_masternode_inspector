@@ -165,8 +165,46 @@
             position: relative;
             height: 300px;
             padding: 1rem;
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
             border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chart-container canvas {
+            border-radius: 8px;
+        }
+
+        /* Better button group styling for chart controls */
+        .btn-group .btn {
+            border-radius: 8px;
+            margin: 0 2px;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        .btn-group .btn:first-child {
+            border-radius: 8px;
+        }
+
+        .btn-group .btn:last-child {
+            border-radius: 8px;
+        }
+
+        /* Enhanced metric cards for performance data */
+        .metric-value.text-info {
+            text-shadow: 0 0 10px rgba(88, 166, 255, 0.5);
+        }
+
+        .metric-value.text-success {
+            text-shadow: 0 0 10px rgba(46, 160, 67, 0.5);
+        }
+
+        .metric-value.text-warning {
+            text-shadow: 0 0 10px rgba(240, 173, 0, 0.5);
+        }
+
+        .metric-value.text-primary {
+            text-shadow: 0 0 10px rgba(31, 111, 235, 0.5);
         }
 
         /* Loading states */
@@ -663,6 +701,19 @@
             backdrop-filter: blur(10px);
             border-radius: 12px 12px 0 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-node-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.1), transparent);
+            transition: left 0.8s ease;
         }
 
         .add-node-tab:hover {
@@ -670,6 +721,54 @@
             border-color: var(--accent-blue);
             background: rgba(31, 111, 235, 0.1);
             transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .add-node-tab:hover::before {
+            left: 100%;
+        }
+
+        /* Real-time data pulse animation */
+        .metric-value[id*="cpuUsage"],
+        .metric-value[id*="memoryUsage"],
+        .metric-value[id*="blockCount"] {
+            animation: data-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes data-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.02); }
+        }
+
+        /* Enhanced no-nodes message */
+        #noNodesMessage {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+        }
+
+        #noNodesMessage .bi-server {
+            opacity: 0.7;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Network list badges in node info */
+        #networksList-* .badge,
+        [id^="networksList-"] .badge {
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+
+        #networksList-* .badge:hover,
+        [id^="networksList-"] .badge:hover {
+            transform: scale(1.05);
             box-shadow: var(--shadow-md);
         }
 
@@ -792,6 +891,67 @@
 
         .text-secondary {
             color: var(--text-secondary) !important;
+        }
+
+        /* Enhanced small text elements */
+        small {
+            font-weight: 500;
+        }
+
+        /* HR styling improvements */
+        hr {
+            border-color: rgba(255, 255, 255, 0.1);
+            margin: 1.5rem 0;
+        }
+
+        /* Row spacing improvements */
+        .row.mb-4 {
+            margin-bottom: 2.5rem !important;
+        }
+
+        /* Card shadow depth based on importance */
+        .card:nth-child(1) {
+            z-index: 3;
+        }
+
+        .card:nth-child(2) {
+            z-index: 2;
+        }
+
+        .card:nth-child(3) {
+            z-index: 1;
+        }
+
+        /* Subtle backdrop pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(88, 166, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(31, 111, 235, 0.02) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Improve focus states for accessibility */
+        *:focus {
+            outline: 2px solid var(--accent-blue);
+            outline-offset: 2px;
+        }
+
+        .btn:focus,
+        .form-control:focus {
+            outline: none;
+        }
+
+        /* Smooth page transitions */
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
     </style>
 </head>
