@@ -1,4 +1,5 @@
-import json, brotli
+import json
+import gzip
 from pycfhelpers.node.http.simple import CFSimpleHTTPResponse
 from logconfig import logger
 from utils import utils
@@ -14,17 +15,15 @@ class ResponseHelpers:
     }
 
     @staticmethod
-    def _encode_body(data, use_brotli=None):
-        use_brotli = Config.COMPRESS_RESPONSES
+    def _encode_body(data, gzip_enabled=None):
+        gzip_enabled = Config.COMPRESS_RESPONSES
 
         body = json.dumps(data).encode()
-        logger.debug(f"Uncompressed response body size: {len(body)} bytes")
         headers = dict(ResponseHelpers.DEFAULT_HEADERS)
 
-        if use_brotli:
-            body = brotli.compress(body, quality=5)
-            headers["Content-Encoding"] = "br"
-            logger.debug(f"Compressed response body size with Brotli: {len(body)} bytes")
+        if gzip_enabled:
+            body = gzip.compress(body)
+            headers["Content-Encoding"] = "gzip"
 
         return body, headers
 
