@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellframe Masternode Dashboard</title>
+
+    <!-- Bootstrap CSS (Dark theme) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+
+    <style>
+        :root {
+            --bs-dark: #0d1117;
+            --bs-dark-rgb: 13, 17, 23;
+            --card-bg: #161b22;
+            --card-border: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --success: #238636;
+            --danger: #da3633;
+            --warning: #9e6a03;
+            --info: #0969da;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .card-header {
+            background: transparent;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background: #2ea043;
+            box-shadow: 0 0 12px rgba(46, 160, 67, 0.6);
+            border: 1px solid #2ea043;
+        }
+
+        .status-offline {
+            background: #f85149;
+            box-shadow: 0 0 12px rgba(248, 81, 73, 0.6);
+            border: 1px solid #f85149;
+        }
+
+        .last-updated {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: right;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .btn-outline-light {
+            border-color: var(--card-border);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline-light:hover {
+            background: var(--card-border);
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-outline-light.active {
+            background: var(--info);
+            border-color: var(--info);
+            color: white;
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            word-break: break-all;
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .wallet-address-item {
+            padding: 8px 0;
+        }
+
+        .wallet-address-item:not(:last-child) {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Wallet balance styling for better visibility */
+        .wallet-balance-item {
+            color: #e6edf3;
+            font-size: 0.85rem;
+            padding: 2px 0;
+        }
+
+        .wallet-balance-item strong {
+            color: #ffa657;
+        }
+
+        /* Network state text styling */
+        .network-state-text {
+            color: #e6edf3;
+            font-weight: 500;
+        }
+
+        /* Modal styling */
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--card-border);
+        }
+
+        .form-control {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-primary);
+        }
+
+        .form-control:focus {
+            background: var(--card-bg);
+            border-color: var(--info);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.2rem rgba(9, 105, 218, 0.25);
+        }
+
+        .form-label {
+            color: var(--text-primary);
+        }
+
+        /* Tabs styling */
+        .nav-tabs {
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--text-secondary);
+            border: none;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--text-primary);
+            border-bottom-color: var(--card-border);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--info);
+            background: transparent;
+            border-bottom-color: var(--info);
+        }
+
+        .tab-content {
+            padding-top: 1rem;
+        }
+
+        .node-tab {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        .node-tab-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .node-tab .btn-close {
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            padding: 0;
+            margin-left: 4px;
+            border-radius: 3px;
+        }
+
+        .node-tab:hover .btn-close {
+            opacity: 0.6;
+        }
+
+        .node-tab .btn-close:hover {
+            opacity: 1;
+            color: #f85149;
+            background: rgba(248, 81, 73, 0.1);
+        }
+
+        .node-tab .btn-close:focus {
+            box-shadow: none;
+            outline: none;
+        }
+
+        .node-status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .add-node-tab {
+            color: var(--text-secondary);
+            border: 1px dashed var(--card-border);
+            background: transparent;
+        }
+
+        .add-node-tab:hover {
+            color: var(--text-primary);
+            border-color: var(--text-secondary);
+        }
+
+        /* Network tabs styling */
+        .nav-pills .nav-link {
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--card-border);
+            margin: 0 4px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .nav-pills .nav-link:hover {
+            color: var(--text-primary);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--text-secondary);
+        }
+
+        .nav-pills .nav-link.active {
+            color: white;
+            background: var(--info);
+            border-color: var(--info);
+        }
+    </style>
+</head>
+<body>
+    <!-- Node Configuration Modal -->
+    <div class="modal fade" id="nodeConfigModal" tabindex="-1" aria-labelledby="nodeConfigModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="nodeConfigModalLabel">
+                        <i class="bi bi-gear"></i> <span id="modalTitle">Add Masternode</span>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <form id="nodeConfigForm">
+                        <div class="mb-3">
+                            <label for="nodeName" class="form-label">Node Name</label>
+                            <input type="text" class="form-control" id="nodeName" placeholder="e.g., Main Node" required>
+                            <div class="form-text text-secondary">A friendly name to identify this node</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="serverUrl" class="form-label">Server URL</label>
+                            <input type="url" class="form-control" id="serverUrl" placeholder="https://your-server.com" required>
+                            <div class="form-text text-secondary">The base URL of your masternode inspector API</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="accessToken" class="form-label">Access Token</label>
+                            <input type="text" class="form-control" id="accessToken" placeholder="Your API access token" required>
+                            <div class="form-text text-secondary">The authentication token for API access</div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="testConnection">
+                            <label class="form-check-label" for="testConnection">
+                                Test connection before saving
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveNodeBtn">
+                        <span class="btn-text">Save Node</span>
+                        <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="welcomeModalLabel">
+                        <i class="bi bi-server"></i> Welcome to Cellframe Masternode Dashboard
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-graph-up text-info" style="font-size: 3rem;"></i>
+                        <h5 class="mt-3">Monitor Multiple Masternodes</h5>
+                        <p class="text-secondary">Track performance, rewards, and system metrics across all your Cellframe masternodes in one unified dashboard.</p>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="bi bi-speedometer2 text-success" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Real-time Monitoring</h6>
+                            <small class="text-secondary">Live system metrics and network status</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="bi bi-graph-up-arrow text-warning" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Performance Analytics</h6>
+                            <small class="text-secondary">Block signing and reward tracking</small>
+                        </div>
+                        <div class="col-md-4 text-center mb-3">
+                            <i class="bi bi-collection text-info" style="font-size: 2rem;"></i>
+                            <h6 class="mt-2">Multi-Node Support</h6>
+                            <small class="text-secondary">Manage multiple nodes in tabs</small>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-4">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Getting Started:</strong> Add your first masternode by providing the server URL and access token. You can add multiple nodes and switch between them using tabs.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="addFirstNodeBtn">
+                        <i class="bi bi-plus-circle"></i> Add Your First Node
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <!-- Header with Node Management -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-4 text-center mb-2">
+                    <i class="bi bi-server"></i> Cellframe Masternode Dashboard
+                </h1>
+                <p class="text-center text-secondary">Real-time monitoring and analytics</p>
+            </div>
+        </div>
+
+        <!-- Node Tabs -->
+        <div class="row mb-4">
+            <div class="col">
+                <ul class="nav nav-tabs justify-content-center" id="nodeTabs" role="tablist">
+                    <!-- Tabs will be dynamically added here -->
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link add-node-tab" id="add-node-tab" type="button" onclick="showNodeConfigModal()">
+                            <i class="bi bi-plus-circle"></i> Add Node
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="nodeTabContent">
+            <!-- Node content will be dynamically added here -->
+        </div>
+
+        <!-- No Nodes Message -->
+        <div id="noNodesMessage" class="text-center py-5">
+            <i class="bi bi-server text-secondary" style="font-size: 4rem;"></i>
+            <h4 class="mt-3 text-secondary">No Masternodes Configured</h4>
+            <p class="text-secondary">Add your first masternode to start monitoring</p>
+            <button class="btn btn-primary" onclick="showNodeConfigModal()">
+                <i class="bi bi-plus-circle"></i> Add Masternode
+            </button>
+        </div>
+
+        <!-- Last Updated Info -->
+        <div class="row mt-4">
+            <div class="col">
+                <div class="last-updated text-center" id="lastUpdated">Ready to connect</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Global variables
+        let nodes = JSON.parse(localStorage.getItem('masternodes') || '[]');
+        let activeNodeId = localStorage.getItem('activeNodeId') || null;
+        let charts = {};
+        let updateIntervals = {};
+
+        // Parse URL parameters
+        function getURLParameters() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                server_url: params.get('server_url'),
+                api_token: params.get('api_token') || params.get('access_token') // Support both parameter names
+            };
+        }
+
+        // Clean URL parameters from address bar (for security/privacy)
+        function cleanURLParameters() {
+            const url = new URL(window.location);
+            url.search = '';
+            window.history.replaceState({}, document.title, url.toString());
+        }
+
+        // Node management
+        class NodeManager {
+            constructor() {
+                this.initialize();
+            }
+
+            initialize() {
+                const urlParams = getURLParameters();
+
+                // Check if we have URL parameters
+                if (urlParams.server_url && urlParams.api_token) {
+                    // Check if this node already exists
+                    const existingNode = nodes.find(n =>
+                        n.url === urlParams.server_url && n.token === urlParams.api_token
+                    );
+
+                    if (!existingNode) {
+                        // Auto-add the node from URL parameters
+                        this.autoAddNodeFromURL(urlParams);
+                    } else {
+                        // Node exists, just activate it
+                        this.renderNodeTabs();
+                        this.activateNode(existingNode.id);
+                    }
+                } else if (urlParams.server_url || urlParams.api_token) {
+                    // Partial parameters provided - show config modal with pre-filled values
+                    if (nodes.length === 0) {
+                        this.showWelcomeModalWithParams(urlParams);
+                    } else {
+                        this.renderNodeTabs();
+                        this.activateNode(activeNodeId || nodes[0].id);
+                        // Show modal for adding new node with partial params
+                        setTimeout(() => this.showNodeConfigModalWithParams(urlParams), 500);
+                    }
+                } else {
+                    // No URL parameters - normal flow
+                    if (nodes.length === 0) {
+                        this.showWelcomeModal();
+                    } else {
+                        this.renderNodeTabs();
+                        this.activateNode(activeNodeId || nodes[0].id);
+                    }
+                }
+            }
+
+            async autoAddNodeFromURL(urlParams) {
+                // Create a default name based on the server URL
+                const urlObj = new URL(urlParams.server_url);
+                const defaultName = urlObj.hostname || 'Node from URL';
+
+                const newNode = {
+                    id: Date.now().toString(),
+                    name: defaultName,
+                    url: urlParams.server_url.replace(/\/$/, ''),
+                    token: urlParams.api_token,
+                    status: 'unknown',
+                    lastUpdate: null
+                };
+
+                // Test connection first
+                const isValid = await this.testConnection(newNode.url, newNode.token);
+                if (isValid) {
+                    nodes.push(newNode);
+                    this.saveToStorage();
+                    this.renderNodeTabs();
+                    this.activateNode(newNode.id);
+
+                    // Clean URL parameters for security
+                    cleanURLParameters();
+
+                    // Show success message
+                    document.getElementById('lastUpdated').textContent =
+                        `Auto-connected to ${defaultName}`;
+                } else {
+                    // Connection failed - show config modal with pre-filled values
+                    this.showNodeConfigModalWithParams(urlParams);
+                }
+            }
+
+            showWelcomeModal() {
+                const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+                welcomeModal.show();
+
+                document.getElementById('addFirstNodeBtn').onclick = () => {
+                    welcomeModal.hide();
+                    this.showNodeConfigModal();
+                };
+            }
+
+            showWelcomeModalWithParams(urlParams) {
+                const welcomeModal = new bootstrap.Modal(document.getElementById('welcomeModal'));
+                welcomeModal.show();
+
+                document.getElementById('addFirstNodeBtn').onclick = () => {
+                    welcomeModal.hide();
+                    this.showNodeConfigModalWithParams(urlParams);
+                };
+            }
+
+            showNodeConfigModal(nodeId = null) {
+                const modal = new bootstrap.Modal(document.getElementById('nodeConfigModal'));
+                const form = document.getElementById('nodeConfigForm');
+                const modalTitle = document.getElementById('modalTitle');
+                const saveBtn = document.getElementById('saveNodeBtn');
+
+                form.reset();
+
+                if (nodeId) {
+                    const node = nodes.find(n => n.id === nodeId);
+                    if (node) {
+                        modalTitle.textContent = 'Edit Masternode';
+                        document.getElementById('nodeName').value = node.name;
+                        document.getElementById('serverUrl').value = node.url;
+                        document.getElementById('accessToken').value = node.token;
+                        saveBtn.setAttribute('data-node-id', nodeId);
+                    }
+                } else {
+                    modalTitle.textContent = 'Add Masternode';
+                    saveBtn.removeAttribute('data-node-id');
+                }
+
+                modal.show();
+            }
+
+            showNodeConfigModalWithParams(urlParams, nodeId = null) {
+                const modal = new bootstrap.Modal(document.getElementById('nodeConfigModal'));
+                const form = document.getElementById('nodeConfigForm');
+                const modalTitle = document.getElementById('modalTitle');
+                const saveBtn = document.getElementById('saveNodeBtn');
+
+                form.reset();
+
+                if (nodeId) {
+                    const node = nodes.find(n => n.id === nodeId);
+                    if (node) {
+                        modalTitle.textContent = 'Edit Masternode';
+                        document.getElementById('nodeName').value = node.name;
+                        document.getElementById('serverUrl').value = node.url;
+                        document.getElementById('accessToken').value = node.token;
+                        saveBtn.setAttribute('data-node-id', nodeId);
+                    }
+                } else {
+                    modalTitle.textContent = 'Add Masternode';
+                    saveBtn.removeAttribute('data-node-id');
+
+                    // Pre-fill with URL parameters
+                    if (urlParams.server_url) {
+                        document.getElementById('serverUrl').value = urlParams.server_url;
+
+                        // Generate a default name from the URL
+                        try {
+                            const urlObj = new URL(urlParams.server_url);
+                            document.getElementById('nodeName').value = urlObj.hostname || 'New Node';
+                        } catch (e) {
+                            document.getElementById('nodeName').value = 'New Node';
+                        }
+                    }
+
+                    if (urlParams.api_token) {
+                        document.getElementById('accessToken').value = urlParams.api_token;
+                    }
+
+                    // Auto-enable connection test if both params are provided
+                    if (urlParams.server_url && urlParams.api_token) {
+                        document.getElementById('testConnection').checked = true;
+                    }
+                }
+
+                modal.show();
+            }
+
+            async saveNode() {
+                const form = document.getElementById('nodeConfigForm');
+                const saveBtn = document.getElementById('saveNodeBtn');
+                const btnText = saveBtn.querySelector('.btn-text');
+                const spinner = saveBtn.querySelector('.spinner-border');
+
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const nodeData = {
+                    name: document.getElementById('nodeName').value.trim(),
+                    url: document.getElementById('serverUrl').value.trim().replace(/\/$/, ''),
+                    token: document.getElementById('accessToken').value.trim()
+                };
+
+                const testConnection = document.getElementById('testConnection').checked;
+                const existingNodeId = saveBtn.getAttribute('data-node-id');
+
+                // Show loading state
+                saveBtn.disabled = true;
+                btnText.textContent = testConnection ? 'Testing...' : 'Saving...';
+                spinner.classList.remove('d-none');
+
+                try {
+                    if (testConnection) {
+                        const isValid = await this.testConnection(nodeData.url, nodeData.token);
+                        if (!isValid) {
+                            throw new Error('Connection test failed');
+                        }
+                    }
+
+                    if (existingNodeId) {
+                        // Update existing node
+                        const nodeIndex = nodes.findIndex(n => n.id === existingNodeId);
+                        if (nodeIndex !== -1) {
+                            nodes[nodeIndex] = { ...nodes[nodeIndex], ...nodeData };
+                        }
+                    } else {
+                        // Add new node
+                        const newNode = {
+                            id: Date.now().toString(),
+                            ...nodeData,
+                            status: 'unknown',
+                            lastUpdate: null
+                        };
+                        nodes.push(newNode);
+                    }
+
+                    this.saveToStorage();
+                    this.renderNodeTabs();
+
+                    if (!existingNodeId) {
+                        this.activateNode(nodes[nodes.length - 1].id);
+                    }
+
+                    // Clean URL parameters after successful save
+                    cleanURLParameters();
+
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('nodeConfigModal'));
+                    modal.hide();
+
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                } finally {
+                    // Reset button state
+                    saveBtn.disabled = false;
+                    btnText.textContent = 'Save Node';
+                    spinner.classList.add('d-none');
+                }
+            }
+
+            async testConnection(url, token) {
+                try {
+                    const response = await fetch(`${url}/?access_token=${token}&action=hostname`, {
+                        method: 'GET',
+                        timeout: 10000
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.status === 'ok' && data.data && data.data.hostname;
+                } catch (error) {
+                    console.error('Connection test failed:', error);
+                    return false;
+                }
+            }
+
+            removeNode(nodeId) {
+                if (confirm('Are you sure you want to remove this node?')) {
+                    nodes = nodes.filter(n => n.id !== nodeId);
+                    this.saveToStorage();
+
+                    // Clear any running intervals for this node
+                    if (updateIntervals[nodeId]) {
+                        clearInterval(updateIntervals[nodeId]);
+                        delete updateIntervals[nodeId];
+                    }
+
+                    // Clear charts for this node
+                    if (charts[nodeId]) {
+                        Object.values(charts[nodeId]).forEach(networkCharts => {
+                            if (networkCharts && typeof networkCharts === 'object') {
+                                Object.values(networkCharts).forEach(chart => {
+                                    if (chart && chart.destroy) chart.destroy();
+                                });
+                            }
+                        });
+                        delete charts[nodeId];
+                    }
+
+                    if (nodes.length === 0) {
+                        document.getElementById('noNodesMessage').style.display = 'block';
+                        document.getElementById('nodeTabContent').innerHTML = '';
+                        document.getElementById('nodeTabs').innerHTML = `
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link add-node-tab" id="add-node-tab" type="button" onclick="showNodeConfigModal()">
+                                    <i class="bi bi-plus-circle"></i> Add Node
+                                </button>
+                            </li>
+                        `;
+                    } else {
+                        this.renderNodeTabs();
+                        if (activeNodeId === nodeId) {
+                            this.activateNode(nodes[0].id);
+                        }
+                    }
+                }
+            }
+
+            renderNodeTabs() {
+                const tabsContainer = document.getElementById('nodeTabs');
+                const contentContainer = document.getElementById('nodeTabContent');
+
+                document.getElementById('noNodesMessage').style.display = 'none';
+
+                // Clear existing tabs and content
+                tabsContainer.innerHTML = '';
+                contentContainer.innerHTML = '';
+
+                // Create tabs for each node
+                nodes.forEach((node, index) => {
+                    // Create tab
+                    const tabId = `node-tab-${node.id}`;
+                    const contentId = `node-content-${node.id}`;
+
+                    const tab = document.createElement('li');
+                    tab.className = 'nav-item';
+                    tab.innerHTML = `
+                        <button class="nav-link node-tab" id="${tabId}" data-bs-toggle="tab"
+                                data-bs-target="#${contentId}" type="button" role="tab"
+                                onclick="nodeManager.activateNode('${node.id}')">
+                            <div class="node-tab-content">
+                                <span class="node-status-indicator ${this.getStatusClass(node.status)}"></span>
+                                <span>${node.name}</span>
+                            </div>
+                            <span class="btn-close" onclick="event.stopPropagation(); nodeManager.removeNode('${node.id}')" title="Remove node">×</span>
+                        </button>
+                    `;
+                    tabsContainer.appendChild(tab);
+
+                    // Create content
+                    const content = document.createElement('div');
+                    content.className = 'tab-pane fade';
+                    content.id = contentId;
+                    content.innerHTML = this.generateNodeContent(node.id);
+                    contentContainer.appendChild(content);
+                });
+
+                // Add "Add Node" tab
+                const addTab = document.createElement('li');
+                addTab.className = 'nav-item';
+                addTab.innerHTML = `
+                    <button class="nav-link add-node-tab" type="button" onclick="nodeManager.showNodeConfigModal()">
+                        <i class="bi bi-plus-circle"></i> Add Node
+                    </button>
+                `;
+                tabsContainer.appendChild(addTab);
+            }
+
+            generateNodeContent(nodeId) {
+                return `
+                    <!-- System Status Row (Per Node) -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-cpu"></i> System Status</span>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="nodeManager.showNodeConfigModal('${nodeId}')">
+                                        <i class="bi bi-gear"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <p class="metric-value text-info" id="cpuUsage-${nodeId}">-</p>
+                                            <p class="metric-label">CPU Usage</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="metric-value text-warning" id="memoryUsage-${nodeId}">-</p>
+                                            <p class="metric-label">Memory (MB)</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <small class="text-secondary">
+                                        <div>Node Version: <span id="nodeVersion-${nodeId}">-</span></div>
+                                        <div>Uptime: <span id="nodeUptime-${nodeId}">-</span></div>
+                                        <div>Hostname: <span id="hostname-${nodeId}">-</span></div>
+                                        <div>External IP: <span id="externalIp-${nodeId}">-</span></div>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-info-circle"></i> Node Information
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <h5 class="text-primary mb-3">Available Networks</h5>
+                                        <div id="networksList-${nodeId}">
+                                            <div class="text-secondary">Loading networks...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Network Tabs -->
+                    <div class="row mb-4">
+                        <div class="col">
+                            <ul class="nav nav-pills justify-content-center" id="networkTabs-${nodeId}" role="tablist">
+                                <!-- Network tabs will be dynamically added here -->
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Network Tab Content -->
+                    <div class="tab-content" id="networkTabContent-${nodeId}">
+                        <!-- Network content will be dynamically added here -->
+                    </div>
+                `;
+            }
+
+            generateNetworkContent(nodeId, networkName, nativeTicker = 'TOKEN') {
+                const elementPrefix = `${nodeId}-${networkName}`;
+                return `
+                    <!-- Network Status Row -->
+                    <div class="row mb-4">
+                        <div class="col-lg col-md-6 mb-3 mb-lg-0">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-globe"></i> Network Status
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="status-indicator" id="networkStatus-${elementPrefix}"></span>
+                                        <span class="network-state-text" id="networkState-${elementPrefix}">Checking...</span>
+                                    </div>
+                                    <div class="row text-center">
+                                        <div class="col-12">
+                                            <p class="metric-value text-success" id="blockCount-${elementPrefix}">-</p>
+                                            <p class="metric-label">Total Blocks</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <small class="text-secondary">
+                                        <div>Today: <span id="blocksToday-${elementPrefix}">-</span> blocks</div>
+                                        <div>Network: <strong>${networkName}</strong></div>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg col-md-6 mb-3 mb-lg-0">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-coin"></i> Token & Rewards
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <p class="metric-value text-warning" id="tokenPrice-${elementPrefix}">-</p>
+                                            <p class="metric-label">${nativeTicker} Price</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="metric-value text-success" id="blockReward-${elementPrefix}">-</p>
+                                            <p class="metric-label">Block Reward</p>
+                                        </div>
+                                        <div class="col-4">
+                                            <p class="metric-value text-info" id="autocollectStatus-${elementPrefix}">-</p>
+                                            <p class="metric-label">Autocollect</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg col-md-6 mb-3 mb-lg-0">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-wallet2"></i> Wallet Balance
+                                </div>
+                                <div class="card-body">
+                                    <div id="walletBalances-${elementPrefix}">
+                                        <div class="text-center">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg col-md-6 mb-3 mb-lg-0">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-credit-card"></i> Wallet Addresses
+                                </div>
+                                <div class="card-body">
+                                    <div id="walletAddresses-${elementPrefix}">
+                                        <div class="text-center text-secondary">Loading addresses...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg col-md-6 mb-3 mb-lg-0">
+                            <div class="card h-100">
+                                <div class="card-header">
+                                    <i class="bi bi-hdd"></i> Chain Information
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <p class="metric-value text-info" id="chainSize-${elementPrefix}">-</p>
+                                        <p class="metric-label">Chain Size</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="row mb-4">
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-graph-up"></i> Daily Signed Blocks</span>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-light active" onclick="updateChart('${nodeId}', '${networkName}', 'blocks', 7, this)">7d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'blocks', 14, this)">14d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'blocks', 30, this)">30d</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="blocksChart-${elementPrefix}"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-star"></i> First Signed Blocks</span>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-light active" onclick="updateChart('${nodeId}', '${networkName}', 'firstBlocks', 7, this)">7d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'firstBlocks', 14, this)">14d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'firstBlocks', 30, this)">30d</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="firstBlocksChart-${elementPrefix}"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span><i class="bi bi-currency-dollar"></i> Daily Rewards (${nativeTicker})</span>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-light active" onclick="updateChart('${nodeId}', '${networkName}', 'rewards', 7, this)">7d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'rewards', 14, this)">14d</button>
+                                        <button type="button" class="btn btn-outline-light" onclick="updateChart('${nodeId}', '${networkName}', 'rewards', 30, this)">30d</button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="rewardsChart-${elementPrefix}"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics Row -->
+                    <div class="row mb-4">
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="bi bi-trophy"></i> Block Signing Performance
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <p class="metric-value text-primary" id="totalSignedBlocks-${elementPrefix}">-</p>
+                                            <p class="metric-label">Total Signed</p>
+                                        </div>
+                                        <div class="col-6">
+                                            <p class="metric-value text-info" id="firstSignedBlocks-${elementPrefix}">-</p>
+                                            <p class="metric-label">First Signed</p>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <span class="badge bg-success" id="signedToday-${elementPrefix}">Today: -</span>
+                                        </div>
+                                        <div class="col-6">
+                                            <span class="badge bg-warning" id="firstSignedToday-${elementPrefix}">First: -</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="bi bi-cash-stack"></i> Reward Summary (${nativeTicker})
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <p class="metric-value text-success" id="totalRewards-${elementPrefix}">-</p>
+                                        <p class="metric-label">Total Rewards</p>
+                                    </div>
+                                    <hr>
+                                    <div class="row text-center">
+                                        <div class="col-6">
+                                            <div class="badge bg-info mb-1" id="todayRewards-${elementPrefix}">Today: -</div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="badge bg-secondary mb-1" id="yesterdayRewards-${elementPrefix}">Yesterday: -</div>
+                                        </div>
+                                    </div>
+                                    <div class="row text-center mt-2">
+                                        <div class="col-6">
+                                            <small class="text-success">Best: <span id="biggestReward-${elementPrefix}">-</span></small>
+                                        </div>
+                                        <div class="col-6">
+                                            <small class="text-danger">Smallest: <span id="smallestReward-${elementPrefix}">-</span></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <i class="bi bi-info-circle"></i> Network Details
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center">
+                                        <h6 class="text-primary">${networkName}</h6>
+                                        <div class="badge bg-secondary mb-2">Token: ${nativeTicker}</div>
+                                        <hr>
+                                        <small class="text-secondary">
+                                            <div>Remote Cache Updated: <span id="cacheUpdated-${elementPrefix}">-</span></div>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            getStatusClass(status) {
+                switch (status) {
+                    case 'online': return 'status-online';
+                    case 'offline': return 'status-offline';
+                    default: return '';
+                }
+            }
+
+            activateNode(nodeId) {
+                activeNodeId = nodeId;
+                localStorage.setItem('activeNodeId', nodeId);
+
+                // Update tab appearance
+                document.querySelectorAll('.nav-link.node-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.getElementById(`node-tab-${nodeId}`)?.classList.add('active');
+
+                // Show content
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                document.getElementById(`node-content-${nodeId}`)?.classList.add('show', 'active');
+
+                // Start monitoring this node
+                this.startMonitoring(nodeId);
+            }
+
+            async startMonitoring(nodeId) {
+                const node = nodes.find(n => n.id === nodeId);
+                if (!node) return;
+
+                // Clear existing interval
+                if (updateIntervals[nodeId]) {
+                    clearInterval(updateIntervals[nodeId]);
+                }
+
+                // Initial system data update
+                await this.updateSystemData(nodeId);
+
+                // Discover and setup networks
+                await this.discoverAndSetupNetworks(nodeId);
+
+                // Set up periodic updates
+                updateIntervals[nodeId] = setInterval(() => {
+                    this.updateSystemData(nodeId);
+                    this.updateAllNetworkData(nodeId);
+                }, 60000); // Update every 60 seconds
+            }
+
+            async discoverAndSetupNetworks(nodeId) {
+                const node = nodes.find(n => n.id === nodeId);
+                if (!node) return;
+
+                try {
+                    // Get active networks directly from the API
+                    const response = await fetch(`${node.url}/?access_token=${node.token}&action=active_networks`);
+                    const data = await response.json();
+
+                    if (data.status === 'ok' && data.data && data.data.active_networks && Array.isArray(data.data.active_networks)) {
+                        const networkNames = data.data.active_networks;
+                        const availableNetworks = [];
+
+                        // Get native ticker for each network
+                        for (const networkName of networkNames) {
+                            try {
+                                const tickerResponse = await fetch(`${node.url}/?access_token=${node.token}&network=${networkName}&network_action=native_ticker`);
+                                const tickerData = await tickerResponse.json();
+                                const nativeTicker = tickerData.data?.[networkName]?.native_ticker || networkName;
+
+                                availableNetworks.push({
+                                    name: networkName,
+                                    ticker: nativeTicker
+                                });
+                            } catch (error) {
+                                console.warn(`Could not get ticker for network ${networkName}:`, error);
+                                // Add network with fallback ticker
+                                availableNetworks.push({
+                                    name: networkName,
+                                    ticker: networkName
+                                });
+                            }
+                        }
+
+                        if (availableNetworks.length > 0) {
+                            this.createNetworkTabs(nodeId, availableNetworks);
+
+                            // Update network list display
+                            const networksList = document.getElementById(`networksList-${nodeId}`);
+                            if (networksList) {
+                                networksList.innerHTML = availableNetworks.map(net =>
+                                    `<div class="badge bg-primary me-1 mb-1">${net.name} (${net.ticker})</div>`
+                                ).join('');
+                            }
+
+                            // Activate first network and start monitoring
+                            await this.activateNetwork(nodeId, availableNetworks[0].name);
+                        } else {
+                            // No active networks found
+                            const networksList = document.getElementById(`networksList-${nodeId}`);
+                            if (networksList) {
+                                networksList.innerHTML = '<div class="text-warning">No active masternode networks found</div>';
+                            }
+                        }
+                    } else {
+                        throw new Error('Invalid response format for active_networks');
+                    }
+                } catch (error) {
+                    console.error(`Error discovering networks for node ${nodeId}:`, error);
+                    const networksList = document.getElementById(`networksList-${nodeId}`);
+                    if (networksList) {
+                        networksList.innerHTML = '<div class="text-danger">Failed to load networks</div>';
+                    }
+                }
+            }
+
+            createNetworkTabs(nodeId, networks) {
+                const tabsContainer = document.getElementById(`networkTabs-${nodeId}`);
+                const contentContainer = document.getElementById(`networkTabContent-${nodeId}`);
+
+                if (!tabsContainer || !contentContainer) return;
+
+                // Clear existing content
+                tabsContainer.innerHTML = '';
+                contentContainer.innerHTML = '';
+
+                networks.forEach((network, index) => {
+                    const tabId = `network-tab-${nodeId}-${network.name}`;
+                    const contentId = `network-content-${nodeId}-${network.name}`;
+
+                    // Create tab
+                    const tab = document.createElement('li');
+                    tab.className = 'nav-item';
+                    tab.innerHTML = `
+                        <button class="nav-link ${index === 0 ? 'active' : ''}" id="${tabId}"
+                                data-bs-toggle="pill" data-bs-target="#${contentId}" type="button"
+                                role="tab" data-network-name="${network.name}"
+                                onclick="nodeManager.activateNetwork('${nodeId}', '${network.name}')">
+                            ${network.name} (${network.ticker})
+                        </button>
+                    `;
+                    tabsContainer.appendChild(tab);
+
+                    // Create content
+                    const content = document.createElement('div');
+                    content.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
+                    content.id = contentId;
+                    content.innerHTML = this.generateNetworkContent(nodeId, network.name, network.ticker);
+                    contentContainer.appendChild(content);
+                });
+            }
+
+            async activateNetwork(nodeId, networkName) {
+                await this.updateNetworkData(nodeId, networkName);
+
+                // Initialize charts for this network
+                setTimeout(() => {
+                    updateChart(nodeId, networkName, 'blocks', 7);
+                    updateChart(nodeId, networkName, 'firstBlocks', 7);
+                    updateChart(nodeId, networkName, 'rewards', 7);
+                }, 500);
+            }
+
+            async updateAllNetworkData(nodeId) {
+                const networkTabs = document.querySelectorAll(`#networkTabs-${nodeId} .nav-link[data-network-name]`);
+                for (const tab of networkTabs) {
+                    const networkName = tab.getAttribute('data-network-name');
+                    if (networkName) {
+                        await this.updateNetworkData(nodeId, networkName);
+                    }
+                }
+            }
+
+            async updateSystemData(nodeId) {
+                const node = nodes.find(n => n.id === nodeId);
+                if (!node) return;
+
+                try {
+                    const systemData = await this.fetchSystemData(node);
+                    this.updateSystemMetrics(nodeId, systemData);
+
+                    // Update node status
+                    const nodeIndex = nodes.findIndex(n => n.id === nodeId);
+                    if (nodeIndex !== -1) {
+                        nodes[nodeIndex].status = 'online';
+                        nodes[nodeIndex].lastUpdate = new Date().toISOString();
+                        this.saveToStorage();
+                        this.updateTabStatus(nodeId, 'online');
+                    }
+
+                    document.getElementById('lastUpdated').textContent =
+                        `${node.name} - Last updated: ${new Date().toLocaleTimeString()}`;
+
+                } catch (error) {
+                    console.error(`Error updating system data for node ${nodeId}:`, error);
+
+                    // Update node status to offline
+                    const nodeIndex = nodes.findIndex(n => n.id === nodeId);
+                    if (nodeIndex !== -1) {
+                        nodes[nodeIndex].status = 'offline';
+                        this.saveToStorage();
+                        this.updateTabStatus(nodeId, 'offline');
+                    }
+
+                    document.getElementById('lastUpdated').textContent =
+                        `${node.name} - Connection failed: ${new Date().toLocaleTimeString()}`;
+                }
+            }
+
+            async updateNetworkData(nodeId, networkName) {
+                const node = nodes.find(n => n.id === nodeId);
+                if (!node) return;
+
+                try {
+                    const networkData = await this.fetchNetworkData(node, networkName);
+                    this.updateNetworkMetrics(nodeId, networkName, networkData);
+                } catch (error) {
+                    console.error(`Error updating network data for node ${nodeId}, network ${networkName}:`, error);
+                }
+            }
+
+            updateTabStatus(nodeId, status) {
+                const statusIndicator = document.querySelector(`#node-tab-${nodeId} .node-status-indicator`);
+                if (statusIndicator) {
+                    statusIndicator.className = `node-status-indicator ${this.getStatusClass(status)}`;
+                }
+            }
+
+            async fetchSystemData(node) {
+                const response = await fetch(`${node.url}/?access_token=${node.token}&action=all`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data.data;
+            }
+
+            async fetchNetworkData(node, networkName) {
+                const response = await fetch(`${node.url}/?access_token=${node.token}&network=${networkName}&network_action=all`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                return data.data[networkName];
+            }
+
+            updateSystemMetrics(nodeId, data) {
+                if (!data) return;
+
+                this.setElementText(`cpuUsage-${nodeId}`, data.node_cpu_usage ?
+                    parseFloat(data.node_cpu_usage).toFixed(1) + '%' : '-');
+                this.setElementText(`memoryUsage-${nodeId}`, data.node_memory_usage ?
+                    this.formatNumber(data.node_memory_usage) : '-');
+                this.setElementText(`nodeVersion-${nodeId}`, data.current_node_version || '-');
+                this.setElementText(`nodeUptime-${nodeId}`, data.node_uptime ?
+                    this.formatUptime(data.node_uptime) : '-');
+                this.setElementText(`hostname-${nodeId}`, data.hostname || '-');
+                this.setElementText(`externalIp-${nodeId}`, data.external_ip || '-');
+            }
+
+            updateNetworkMetrics(nodeId, networkName, data) {
+                if (!data) return;
+
+                const elementPrefix = `${nodeId}-${networkName}`;
+
+                // Network status
+                const statusIndicator = document.getElementById(`networkStatus-${elementPrefix}`);
+                const networkState = document.getElementById(`networkState-${elementPrefix}`);
+
+                if (data.network_status && data.network_status.synced) {
+                    statusIndicator.className = 'status-indicator status-online';
+                    networkState.textContent = data.network_status.current_state || 'Online';
+                } else {
+                    statusIndicator.className = 'status-indicator status-offline';
+                    networkState.textContent = 'Offline';
+                }
+
+                // Update all metrics
+                this.setElementText(`blockCount-${elementPrefix}`, data.block_count ?
+                    this.formatNumber(data.block_count) : '-');
+                this.setElementText(`blocksToday-${elementPrefix}`, data.block_count_today || '-');
+                this.setElementText(`tokenPrice-${elementPrefix}`, data.token_price ?
+                    this.formatCurrency(data.token_price) : '-');
+                this.setElementText(`blockReward-${elementPrefix}`, data.current_block_reward ?
+                    parseFloat(data.current_block_reward).toFixed(2) : '-');
+
+                // Autocollect
+                if (data.autocollect_status && data.autocollect_status.rewards) {
+                    this.setElementText(`autocollectStatus-${elementPrefix}`,
+                        parseFloat(data.autocollect_status.rewards).toFixed(2));
+                } else {
+                    this.setElementText(`autocollectStatus-${elementPrefix}`, '-');
+                }
+
+                // Wallet balance
+                if (data.reward_wallet_balance) {
+                    const balanceDiv = document.getElementById(`walletBalances-${elementPrefix}`);
+                    balanceDiv.innerHTML = '';
+
+                    Object.entries(data.reward_wallet_balance).forEach(([token, balance]) => {
+                        const div = document.createElement('div');
+                        div.className = 'wallet-balance-item';
+                        div.innerHTML = `<strong>${token}:</strong> ${this.formatNumber(balance)}`;
+                        balanceDiv.appendChild(div);
+                    });
+                }
+
+                // Performance metrics
+                this.setElementText(`totalSignedBlocks-${elementPrefix}`, data.signed_blocks_count ?
+                    this.formatNumber(data.signed_blocks_count) : '-');
+                this.setElementText(`firstSignedBlocks-${elementPrefix}`, data.first_signed_blocks_count ?
+                    this.formatNumber(data.first_signed_blocks_count) : '-');
+                this.setElementText(`signedToday-${elementPrefix}`,
+                    `Today: ${data.signed_blocks_today_amount || 0}`);
+                this.setElementText(`firstSignedToday-${elementPrefix}`,
+                    `First: ${data.first_signed_blocks_today_amount || 0}`);
+
+                // Reward summary
+                this.setElementText(`totalRewards-${elementPrefix}`, data.reward_wallet_total_rewards ?
+                    this.formatNumber(data.reward_wallet_total_rewards) : '-');
+                this.setElementText(`todayRewards-${elementPrefix}`,
+                    `Today: ${this.formatNumber(data.reward_wallet_today_rewards || 0)}`);
+                this.setElementText(`yesterdayRewards-${elementPrefix}`,
+                    `Yesterday: ${this.formatNumber(data.reward_wallet_yesterday_rewards || 0)}`);
+
+                if (data.reward_wallet_biggest_reward) {
+                    const nativeTicker = data.native_ticker || 'TOKEN';
+                    this.setElementText(`biggestReward-${elementPrefix}`,
+                        `${parseFloat(data.reward_wallet_biggest_reward.recv_coins).toFixed(2)} ${nativeTicker}`);
+                }
+                if (data.reward_wallet_smallest_reward) {
+                    const nativeTicker = data.native_ticker || 'TOKEN';
+                    this.setElementText(`smallestReward-${elementPrefix}`,
+                        `${parseFloat(data.reward_wallet_smallest_reward.recv_coins).toFixed(2)} ${nativeTicker}`);
+                }
+
+                // Chain info
+                this.setElementText(`chainSize-${elementPrefix}`, data.chain_size ?
+                    this.formatBytes(data.chain_size) : '-');
+
+                // Update wallet addresses card
+                this.updateWalletAddresses(elementPrefix, data);
+
+                // Cache updated info - try to find the actual cache timestamp
+                let cacheTimestamp = null;
+
+                // Look for various possible cache timestamp fields
+                if (data.cache_last_updated) {
+                    cacheTimestamp = data.cache_last_updated;
+                } else if (data.last_updated) {
+                    cacheTimestamp = data.last_updated;
+                } else if (data.cache_timestamp) {
+                    cacheTimestamp = data.cache_timestamp;
+                } else {
+                    // Fallback to request timestamp
+                    cacheTimestamp = data.request_timestamp;
+                }
+
+                if (cacheTimestamp) {
+                    try {
+                        const cacheDate = new Date(cacheTimestamp);
+                        this.setElementText(`cacheUpdated-${elementPrefix}`,
+                            cacheDate.toLocaleTimeString());
+                    } catch (e) {
+                        this.setElementText(`cacheUpdated-${elementPrefix}`,
+                            'Invalid timestamp');
+                    }
+                } else {
+                    this.setElementText(`cacheUpdated-${elementPrefix}`,
+                        'Unknown');
+                }
+            }
+
+            updateWalletAddresses(elementPrefix, data) {
+                const walletContainer = document.getElementById(`walletAddresses-${elementPrefix}`);
+                if (!walletContainer) return;
+
+                walletContainer.innerHTML = '';
+
+                // Try different possible wallet address field names
+                let rewardWallet = data.reward_wallet_address ||
+                                 data.wallet_address ||
+                                 data.masternode_wallet_address ||
+                                 null;
+
+                let sovereignWallet = data.sovereign_reward_wallet_address ||
+                                    data.sovereign_wallet_address ||
+                                    null;
+
+                if (!rewardWallet && !sovereignWallet) {
+                    walletContainer.innerHTML = `
+                        <div class="text-center text-secondary">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <div class="mt-2">No wallet addresses configured</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let content = '';
+
+                if (rewardWallet && rewardWallet !== 'null') {
+                    content += `
+                        <div class="wallet-address-item mb-3">
+                            <div class="text-secondary small mb-1">
+                                <i class="bi bi-wallet2"></i> Reward Wallet
+                            </div>
+                            <div class="font-monospace small text-break text-light">
+                                ${rewardWallet}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (sovereignWallet && sovereignWallet !== 'null') {
+                    content += `
+                        <div class="wallet-address-item">
+                            <div class="text-secondary small mb-1">
+                                <i class="bi bi-crown"></i> Sovereign Wallet
+                            </div>
+                            <div class="font-monospace small text-break text-light">
+                                ${sovereignWallet}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                walletContainer.innerHTML = content;
+            }
+
+            setElementText(id, text) {
+                const element = document.getElementById(id);
+                if (element) element.textContent = text;
+            }
+
+            saveToStorage() {
+                localStorage.setItem('masternodes', JSON.stringify(nodes));
+            }
+
+            // Utility functions
+            formatBytes(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            formatUptime(seconds) {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+
+                if (days > 0) {
+                    return `${days}d ${hours}h ${minutes}m`;
+                }
+                return `${hours}h ${minutes}m`;
+            }
+
+            formatCurrency(amount, symbol = '$') {
+                return symbol + parseFloat(amount).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            formatNumber(num) {
+                return parseFloat(num).toLocaleString();
+            }
+        }
+
+        // Chart functions
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#f0f6fc' }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#8b949e' },
+                    grid: { color: '#30363d' }
+                },
+                y: {
+                    ticks: { color: '#8b949e' },
+                    grid: { color: '#30363d' }
+                }
+            }
+        };
+
+        async function updateChart(nodeId, networkName, type, days, clickedButton = null) {
+            const node = nodes.find(n => n.id === nodeId);
+            if (!node) return;
+
+            // Update button states
+            const buttons = document.querySelectorAll(`[onclick*="updateChart('${nodeId}', '${networkName}', '${type}'"]`);
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            } else {
+                // Find and activate the button for this days value
+                buttons.forEach(btn => {
+                    if (btn.textContent.trim() === `${days}d`) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            try {
+                let action;
+                switch (type) {
+                    case 'blocks':
+                        action = 'signed_blocks_all_sums_daily';
+                        break;
+                    case 'firstBlocks':
+                        action = 'first_signed_blocks_all_sums_daily';
+                        break;
+                    case 'rewards':
+                        action = 'reward_wallet_all_sums_daily';
+                        break;
+                    default:
+                        throw new Error(`Unknown chart type: ${type}`);
+                }
+
+                const response = await fetch(`${node.url}/?access_token=${node.token}&network=${networkName}&network_action=${action}`);
+                const data = await response.json();
+
+                if (data.data && data.data[networkName] && data.data[networkName][action]) {
+                    const allData = data.data[networkName][action];
+                    const maxDays = Math.min(days, data.data[networkName].days_cutoff || 30);
+                    const chartData = allData.slice(-maxDays);
+
+                    if (chartData.length > 0) {
+                        updateChartDisplay(nodeId, networkName, type, chartData);
+                    } else {
+                        console.warn(`No chart data available for ${type} on node ${nodeId}, network ${networkName}`);
+                    }
+                }
+            } catch (error) {
+                console.error(`Error fetching ${type} chart data for node ${nodeId}, network ${networkName}:`, error);
+            }
+        }
+
+        function updateChartDisplay(nodeId, networkName, type, chartData) {
+            const elementPrefix = `${nodeId}-${networkName}`;
+            const canvasId = `${type}Chart-${elementPrefix}`;
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const labels = chartData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+
+            let values, label, borderColor, backgroundColor;
+
+            switch (type) {
+                case 'blocks':
+                    values = chartData.map(item => item.block_count);
+                    label = 'Signed Blocks';
+                    borderColor = '#0969da';
+                    backgroundColor = 'rgba(9, 105, 218, 0.1)';
+                    break;
+                case 'firstBlocks':
+                    values = chartData.map(item => item.block_count);
+                    label = 'First Signed Blocks';
+                    borderColor = '#f7931e';
+                    backgroundColor = 'rgba(247, 147, 30, 0.1)';
+                    break;
+                case 'rewards':
+                    values = chartData.map(item => item.total_rewards);
+                    label = 'Daily Rewards';
+                    borderColor = '#238636';
+                    backgroundColor = 'rgba(35, 134, 54, 0.1)';
+                    break;
+                default:
+                    values = chartData.map(item => item.block_count || item.total_rewards);
+                    label = 'Data';
+                    borderColor = '#6f42c1';
+                    backgroundColor = 'rgba(111, 66, 193, 0.1)';
+            }
+
+            // Initialize charts object for this node if it doesn't exist
+            if (!charts[nodeId]) {
+                charts[nodeId] = {};
+            }
+            if (!charts[nodeId][networkName]) {
+                charts[nodeId][networkName] = {};
+            }
+
+            // Destroy existing chart if it exists
+            if (charts[nodeId][networkName][type]) {
+                charts[nodeId][networkName][type].destroy();
+            }
+
+            // Create new chart
+            const ctx = canvas.getContext('2d');
+            charts[nodeId][networkName][type] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: values,
+                        borderColor: borderColor,
+                        backgroundColor: backgroundColor,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Global functions
+        let nodeManager;
+
+        function showNodeConfigModal(nodeId = null) {
+            nodeManager.showNodeConfigModal(nodeId);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            nodeManager = new NodeManager();
+
+            // Set up modal event listeners
+            document.getElementById('cancelBtn').onclick = () => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('nodeConfigModal'));
+                modal.hide();
+            };
+
+            document.getElementById('saveNodeBtn').onclick = () => {
+                nodeManager.saveNode();
+            };
+
+            // Handle form submission with Enter key
+            document.getElementById('nodeConfigForm').onsubmit = (e) => {
+                e.preventDefault();
+                nodeManager.saveNode();
+            };
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            Object.values(updateIntervals).forEach(interval => clearInterval(interval));
+            Object.values(charts).forEach(nodeCharts => {
+                if (nodeCharts && typeof nodeCharts === 'object') {
+                    Object.values(nodeCharts).forEach(networkCharts => {
+                        if (networkCharts && typeof networkCharts === 'object') {
+                            Object.values(networkCharts).forEach(chart => {
+                                if (chart && chart.destroy) chart.destroy();
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
