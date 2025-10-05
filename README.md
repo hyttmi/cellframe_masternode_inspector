@@ -484,13 +484,13 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 For issues, feature requests, or questions:
 - Open an issue on [GitHub Issues](https://github.com/yourusername/cellframe-masternode-inspector/issues)
-- Join the Cellframe community
+- Msg me on Telegram @CELLgainz
 
 ## Acknowledgments
 
 - Built for the Cellframe Network community
 - Powered by [Cellframe](https://cellframe.net/)
-- Uses [pycfhelpers](https://github.com/CELLgainz/pycfhelpers) for Cellframe integration
+- Uses [pycfhelpers](https://gitlab.demlabs.net/cellframe/python-cellframe-modules/pycfhelpers)
 
 ---
 
