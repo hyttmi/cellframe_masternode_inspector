@@ -6,6 +6,7 @@ from logconfig import logger
 from cacher import cacher
 from masternode_helpers import masternode_helpers
 from updater import updater
+from packaging import version
 import platform
 
 def http_server():
@@ -20,8 +21,11 @@ def http_server():
 def main():
     try:
         from system_requests import system_requests
-        if system_requests._current_node_version not in Config.SUPPORTED_NODE_VERSIONS:
-            logger.error(f"Unsupported node version: {system_requests._current_node_version}. Supported versions are: {', '.join(Config.SUPPORTED_NODE_VERSIONS)}")
+        if version.parse(system_requests._current_node_version) < version.parse(Config.MIN_NODE_VERSION):
+            logger.error(
+                f"Unsupported node version: {system_requests._current_node_version}. "
+                f"Minimum supported version is: {Config.MIN_NODE_VERSION}"
+            )
             return 1
         if platform.system() not in Config.SUPPORTED_PLATFORMS:
             logger.error(f"Unsupported platform: {platform.system()}. Supported platforms are: {', '.join(Config.SUPPORTED_PLATFORMS)}")

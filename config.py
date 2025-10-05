@@ -7,7 +7,7 @@ def get_config_value(section, key, default=None):
         return default
 
 class Config:
-    SUPPORTED_NODE_VERSIONS = ["5.5.0", "5.5.1"]
+    MIN_NODE_VERSION = "5.5.0"
     SUPPORTED_PLATFORMS = ["Linux"]
     ACCESS_TOKEN_ENTROPY = int(get_config_value("mninspector", "access_token_entropy", 64))
     BLOCK_COUNT_THRESHOLD = int(get_config_value("mninspector", "block_count_threshold", 30))
