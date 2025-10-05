@@ -1,0 +1,8 @@
+{
+    "name": "cellframe-masternode-inspector",
+    "version": "1.00",
+    "author": "Mika Hyttinen (@CELLgainz)",
+    "dependencies": [],
+    "description": "A Python plugin to inspect and retrieve live system stats and cached multi-network stats for your Cellframe masternode. Supports multiple networks, caches data per network for performance, offloads to RPC nodes where possible (with fallback to local node), and provides a simple authenticated HTTP API for monitoring and management.",
+    "type": "python"
+}
