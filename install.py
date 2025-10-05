@@ -327,10 +327,9 @@ def print_instructions(plugin_dir, token, is_existing):
     print(f"Use the FREE web interface at: {Colors.OKGREEN}https://cellframemasternodeinspector.pqcc.fi{Colors.ENDC}")
     print("\nConfiguration for web UI:")
     if external_ip:
-        print(f"  {Colors.BOLD}Remote IP:{Colors.ENDC} {external_ip}")
+        print(f"  {Colors.BOLD}API URL:{Colors.ENDC} http://{external_ip}:{http_port}/mninspector")
     else:
-        print(f"  {Colors.BOLD}Remote IP:{Colors.ENDC} <your-server-ip>")
-    print(f"  {Colors.BOLD}Port:{Colors.ENDC} {http_port}")
+        print(f"  {Colors.BOLD}API URL:{Colors.ENDC} http://<your-server-ip>:{http_port}/mninspector")
     print(f"  {Colors.BOLD}API Key:{Colors.ENDC} {token}")
 
     print(f"\n{Colors.WARNING}Note:{Colors.ENDC} Make sure port {http_port} is open in your firewall for remote access!")
