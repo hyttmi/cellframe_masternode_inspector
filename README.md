@@ -354,9 +354,10 @@ cellframe-masternode-inspector/
 For a modern web-based dashboard interface, check out the companion project:
 
 **Cellframe Masternode Inspector UI**
+- **Free Web Interface**: https://cellframemasternodeinspector.pqcc.fi (Use it to monitor your own nodes for free)
 - Repository: https://github.com/hyttmi/cellframe-masternode-inspector-ui
 - Features: Multi-node management, real-time monitoring, interactive charts
-- Installation: Simple static HTML/JS/CSS - no build required
+- Self-hosting: Simple static HTML/JS/CSS - no build required
 
 ## Development
 
