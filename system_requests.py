@@ -19,11 +19,22 @@ class SystemRequests:
     def get_external_ip(self):
         try:
             logger.debug("Fetching external IP...")
-            response = requests.get("https://checkip.amazonaws.com", timeout=3, stream=True)
-            logger.debug(f"Response from checkip.amazonaws.com: {response.text.strip()}")
-            if response.status_code == 200:
-                return response.text.strip()
-            logger.error(f"Error fetching IP address from {response.url}, status code: {response.status_code}")
+            services = [
+                "https://api.ipify.org",
+                "https://ipv4.icanhazip.com",
+                "https://v4.ident.me" # these all should provide ipv4 only address
+            ]
+            for service in services:
+                try:
+                    response = requests.get(service, timeout=3, stream=True)
+                    logger.debug(f"Response from {service}: {response.text.strip()}")
+                    if response.status_code == 200:
+                        return response.text.strip()
+                    else:
+                        logger.error(f"Error fetching IP address from {response.url}, status code: {response.status_code}")
+                except Exception as e:
+                    logger.error(f"Exception while fetching IP from {service}: {e}", exc_info=True)
+            logger.error("All external IP services failed.")
             return None
         except Exception as e:
             logger.error(f"An error occurred while fetching external IP: {e}", exc_info=True)
