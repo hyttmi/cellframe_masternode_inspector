@@ -14,13 +14,13 @@ class Updater:
     def run(self):
         while True:
             latest_version, tarball_url = self.get_latest_plugin_version_from_github()
+            self._latest_plugin_version = latest_version
             if latest_version and self.compare_versions(self._current_plugin_version, latest_version):
                 logger.info(
                     f"New plugin version available: {latest_version}. "
                     f"Current version: {self._current_plugin_version}"
                 )
                 self._update_available = True
-                self._latest_plugin_version = latest_version
                 self._tarball_url = tarball_url
                 self.download_and_update(tarball_url)
                 break
