@@ -9,6 +9,7 @@ import sys
 import shutil
 import secrets
 import subprocess
+import urllib.request
 from pathlib import Path
 
 # Colors for terminal output
@@ -230,6 +231,63 @@ def generate_or_get_token(plugin_dir, entropy=64):
         print_error(f"Failed to save token: {e}")
         return token, False
 
+def is_ipv4(ip):
+    """Check if IP address is valid IPv4"""
+    try:
+        parts = ip.split('.')
+        if len(parts) != 4:
+            return False
+        for part in parts:
+            num = int(part)
+            if num < 0 or num > 255:
+                return False
+        return True
+    except (ValueError, AttributeError):
+        return False
+
+def get_external_ip():
+    """Get external IPv4 address of the server"""
+    services = [
+        'https://api.ipify.org',
+        'https://ipv4.icanhazip.com',
+        'https://v4.ident.me'
+    ]
+
+    for service in services:
+        try:
+            with urllib.request.urlopen(service, timeout=5) as response:
+                ip = response.read().decode('utf-8').strip()
+                if ip and is_ipv4(ip):
+                    return ip
+        except Exception:
+            continue
+
+    return None
+
+def get_node_http_port():
+    """Get HTTP port from Cellframe node configuration"""
+    config_file = "/opt/cellframe-node/etc/cellframe-node.cfg"
+    try:
+        with open(config_file, 'r') as f:
+            in_server_section = False
+            for line in f:
+                line = line.strip()
+                if line == '[server]':
+                    in_server_section = True
+                    continue
+                if in_server_section:
+                    if line.startswith('['):
+                        break
+                    if line.startswith('listen_address'):
+                        # Extract port from listen_address=[0.0.0.0:8079]
+                        parts = line.split(':')
+                        if len(parts) >= 2:
+                            port = parts[-1].rstrip(']').strip()
+                            return port
+    except Exception:
+        pass
+    return "8079"  # Default port
+
 def print_instructions(plugin_dir, token, is_existing):
     """Print post-installation instructions"""
     print_header("Installation Complete!")
@@ -245,14 +303,38 @@ def print_instructions(plugin_dir, token, is_existing):
     print(f"{Colors.OKGREEN}{token}{Colors.ENDC}")
     print(f"{Colors.WARNING}Keep this token secure! It's required for API access.{Colors.ENDC}\n")
 
+    # Get external IP and HTTP port
+    print_info("Detecting server information...")
+    external_ip = get_external_ip()
+    http_port = get_node_http_port()
+
+    if external_ip:
+        print(f"{Colors.BOLD}Server IP Address:{Colors.ENDC} {Colors.OKGREEN}{external_ip}{Colors.ENDC}")
+    else:
+        print_warning("Could not detect external IP address")
+
+    print(f"{Colors.BOLD}Node HTTP Port:{Colors.ENDC} {Colors.OKGREEN}{http_port}{Colors.ENDC}\n")
+
     print(f"{Colors.BOLD}Next steps:{Colors.ENDC}")
     print("1. Restart Cellframe node:")
     print(f"   {Colors.OKCYAN}sudo systemctl restart cellframe-node{Colors.ENDC}")
     print("\n2. Check plugin log:")
     print(f"   {Colors.OKCYAN}cat {plugin_dir}/mninspector.log{Colors.ENDC}")
-    print("\n3. Test API endpoint:")
-    print(f"   {Colors.OKCYAN}curl -H 'X-API-Key: {token}' 'http://localhost:8079/mninspector?action=help'{Colors.ENDC}")
-    print("\n4. (Optional) Set up the web UI:")
+    print("\n3. Test API endpoint (local):")
+    print(f"   {Colors.OKCYAN}curl -H 'X-API-Key: {token}' 'http://localhost:{http_port}/mninspector?action=help'{Colors.ENDC}")
+
+    print(f"\n{Colors.BOLD}Web UI Access:{Colors.ENDC}")
+    print(f"Use the FREE web interface at: {Colors.OKGREEN}https://cellframemasternodeinspector.pqcc.fi{Colors.ENDC}")
+    print("\nConfiguration for web UI:")
+    if external_ip:
+        print(f"  {Colors.BOLD}Remote IP:{Colors.ENDC} {external_ip}")
+    else:
+        print(f"  {Colors.BOLD}Remote IP:{Colors.ENDC} <your-server-ip>")
+    print(f"  {Colors.BOLD}Port:{Colors.ENDC} {http_port}")
+    print(f"  {Colors.BOLD}API Key:{Colors.ENDC} {token}")
+
+    print(f"\n{Colors.WARNING}Note:{Colors.ENDC} Make sure port {http_port} is open in your firewall for remote access!")
+    print(f"\n{Colors.BOLD}Alternative - Self-host the web UI:{Colors.ENDC}")
     print(f"   {Colors.OKCYAN}git clone https://github.com/hyttmi/cellframe-masternode-inspector-ui.git{Colors.ENDC}")
     print()
 
