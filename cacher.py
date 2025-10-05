@@ -289,7 +289,7 @@ class Cacher:
                     self.cache[network] = new_data
                     utils.save_json_to_file(new_data, f"{network}_cache.json")
 
-                    logger.debug(
+                    logger.info(
                         f"Cached data for {network} in {time.time() - start_time:.2f} seconds "
                         f"(memory + disk updated)"
                     )
