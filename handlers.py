@@ -72,3 +72,6 @@ def GET_request_handler(headers=None, query=None):
         result.update(Actions.parse_network_actions(networks, network_actions_requested))
 
     return RH.success(result)
+
+def POST_request_handler():
+    return RH.error("POST method not implemented yet!", code=501)

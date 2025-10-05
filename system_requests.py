@@ -1,3 +1,4 @@
+from sys import platform
 from utils import utils
 from logconfig import logger
 import requests, psutil, socket, time, os
@@ -134,5 +135,12 @@ class SystemRequests:
         except Exception as e:
             logger.error(f"An error occurred while checking service status: {e}", exc_info=True)
             return False
+
+    def restart_node(self):
+        try:
+            logger.debug("Restarting cellframe-node...")
+            utils.cli_command("exit", timeout=5) # this should work regardless of platform
+        except Exception as e:
+            logger.error(f"An error occurred while restarting cellframe-node: {e}", exc_info=True)
 
 system_requests = SystemRequests()

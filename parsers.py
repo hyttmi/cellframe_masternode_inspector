@@ -45,7 +45,7 @@ class Parsers:
             if option == "all":
                 return blocks
 
-            now = datetime.now(timezone.utc)
+            now = datetime.now().astimezone()
             filtered = []
 
             if option == "today":
@@ -114,7 +114,7 @@ class Parsers:
                 return tx_data
 
             filtered = []
-            now = datetime.now(timezone.utc)
+            now = datetime.now().astimezone()
 
             # OK, now we have the reward transactions only
             if option == "total_rewards":

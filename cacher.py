@@ -27,7 +27,7 @@ class Cacher:
                 for network in masternode_helpers._active_networks_config:
                     start_time = time.time()
 
-                    # Wait until node is synced, there's no point in caching if not synced
+                    # Wait until node is synced, there's no point in caching if node is not synced
                     if not masternode_helpers.get_network_status(network).get("synced"):
                         logger.info(f"{network} not synced, skipping this cycle")
                         continue
@@ -47,14 +47,12 @@ class Cacher:
 
                     logger.info(f"Caching data for {network}...")
 
-                    # Get sovereign address from config or fetch it
-                    sovereign_addr = masternode_helpers._active_networks_config[network].get("sovereign_addr")
-                    if not sovereign_addr:
-                        sovereign_addr = masternode_helpers.get_sovereign_addr(network)
+                    node_info = masternode_helpers.get_node_info(network) or {}
+                    sovereign_addr = node_info.get("sovereign_addr", None)
 
-                    # Async fetch all data
+
+                    # Async fetch all raw data first
                     futures = {
-                        "block_count": run_on_cacherpool(masternode_helpers.get_block_count, network),
                         "block_count_today": run_on_cacherpool(masternode_helpers.get_blocks_on_network_today, network),
                         "first_signed_blocks_raw": run_on_cacherpool(masternode_helpers.get_signed_blocks, network, first_signed=True),
                         "signed_blocks_raw": run_on_cacherpool(masternode_helpers.get_signed_blocks, network),
@@ -230,7 +228,7 @@ class Cacher:
                     # ----------------------------------------------------------------
                     new_data = {
                         "block_count_today": futures["block_count_today"].result(),
-                        "block_count": futures["block_count"].result(),
+                        "block_count": current_blocks_on_network,
                         "chain_size": futures["chain_size"].result(),
                         "current_block_reward": futures["current_block_reward"].result(),
                         "days_cutoff": Config.DAYS_CUTOFF, # We need to know this later
@@ -274,7 +272,7 @@ class Cacher:
                                 "sovereign_wallet_balance": futures["sovereign_wallet_balance"].result(),
                                 "sovereign_wallet_biggest_reward": sovereign_tx_biggest_reward,
                                 "sovereign_wallet_daily_rewards": sovereign_tx_daily_rewards,
-                                "sovereign_wallet_daily_sums": sovereign_tx_daily_sums,
+                                "sovereign_wallet_all_sums_daily": sovereign_tx_daily_sums,
                                 "sovereign_wallet_earliest_reward": sovereign_tx_earliest_reward,
                                 "sovereign_wallet_latest_reward": sovereign_tx_latest_reward,
                                 "sovereign_wallet_today_rewards": sovereign_tx_today_rewards,
@@ -285,6 +283,9 @@ class Cacher:
                         )
 
                     new_data["cache_last_updated"] = utils.now_iso()
+
+                    if node_info:
+                        new_data.update(node_info)
                     self.cache[network] = new_data
                     utils.save_json_to_file(new_data, f"{network}_cache.json")
 

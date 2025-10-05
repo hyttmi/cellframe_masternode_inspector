@@ -3,6 +3,7 @@ from utils import utils
 from logconfig import logger
 from threadpool import run_on_threadpool
 from masternode_helpers import masternode_helpers
+from updater import updater
 
 
 def get_cache_for_network(network):
@@ -16,7 +17,6 @@ def get_cache_for_network(network):
         logger.error(f"Error accessing cache for {network}: {e}", exc_info=True)
         return {}
 
-
 class Actions:
     # -------------------------
     # System actions
@@ -24,9 +24,11 @@ class Actions:
     SYSTEM_ACTIONS = {
         "active_networks": lambda: list(masternode_helpers._active_networks_config.keys()),
         "current_node_version": lambda: run_on_threadpool(system_requests.get_node_version),
+        "current_plugin_version": lambda: updater._current_plugin_version,
         "external_ip": lambda: run_on_threadpool(system_requests.get_external_ip),
         "hostname": lambda: system_requests._hostname,
         "latest_node_version": lambda: run_on_threadpool(utils.get_latest_node_version),
+        "latest_plugin_version": lambda: updater._latest_plugin_version,
         "node_cpu_usage": lambda: run_on_threadpool(system_requests.get_node_cpu_usage),
         "node_memory_usage": lambda: run_on_threadpool(system_requests.get_node_memory_usage),
         "node_pid": lambda: system_requests._node_pid,
@@ -71,7 +73,7 @@ class Actions:
     @staticmethod
     def parse_system_actions(actions_requested):
         if "help" in actions_requested:
-            return {"available_system_actions": list(Actions.SYSTEM_ACTIONS.keys())}
+            return {"available_system_actions": sorted(Actions.SYSTEM_ACTIONS.keys())}
 
         result = {}
         actions_to_process = (
@@ -93,9 +95,9 @@ class Actions:
         if "help" in network_actions_requested:
             sample_net = next(iter(networks), None)
             if sample_net:
-                available = list(Actions._build_network_actions_for(sample_net).keys())
+                available = sorted(Actions._build_network_actions_for(sample_net).keys())
             else:
-                available = list(Actions.STATIC_NETWORK_ACTIONS.keys())
+                available = sorted(Actions.STATIC_NETWORK_ACTIONS.keys())
             return {"available_network_actions": available}
 
         result = {}

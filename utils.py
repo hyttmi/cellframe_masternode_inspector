@@ -1,18 +1,23 @@
 import os, json, re, requests, requests_unixsocket, secrets
 from http.client import RemoteDisconnected
 from logconfig import logger
-from datetime import datetime, timezone
+from datetime import datetime
 from config import Config
 from packaging import version
 from command_runner import command_runner
+import platform
 
 class Utils:
     def __init__(self):
         self._current_script_path = self.get_current_script_path()
         self._generate_random_token = self.generate_random_token()
         self._rpc_session = requests.Session()
-        self._unix_session = requests_unixsocket.Session()
-        self._unix_url = "http+unix://%2Fopt%2Fcellframe-node%2Fvar%2Frun%2Fnode_cli/connect"
+        if platform.system() == "Linux":
+            self._unix_session = requests_unixsocket.Session()
+            self._unix_url = "http+unix://%2Fopt%2Fcellframe-node%2Fvar%2Frun%2Fnode_cli/connect"
+        else:
+            self._unix_session = requests.Session()
+            self._unix_url = "http://127.0.0.1:12345"
         self._rpc_url = "http://dev.rpc.cellframe.net"
         self._rpc_session_headers = {"Content-Type": "application/json"}
 
@@ -53,8 +58,11 @@ class Utils:
             logger.error(f"RPC request failed with unexpected error: {e}", exc_info=True)
             return None
 
-    @staticmethod
-    def cli_command(command, timeout=120, is_shell_command=False, is_tool_command=False, split_lines=False):
+    def cli_command(self, command, timeout=120,
+                    is_pip_command=False,
+                    is_shell_command=False,
+                    is_tool_command=False,
+                    split_lines=False):
         try:
             if is_shell_command:
                 exit_code, output = command_runner(
@@ -66,6 +74,11 @@ class Utils:
             elif is_tool_command:
                 exit_code, output = command_runner(
                     f"/opt/cellframe-node/bin/cellframe-node-tool {command}",
+                    timeout=timeout, method='poller'
+                )
+            elif is_pip_command:
+                exit_code, output = command_runner(
+                    f"/opt/cellframe-node/python/bin/pip3 {command}",
                     timeout=timeout, method='poller'
                 )
             else:
@@ -161,17 +174,24 @@ class Utils:
             return None
 
     def now_iso(self):
-        return datetime.now(timezone.utc).isoformat()
+        return datetime.now().astimezone().isoformat()
 
     def rfc2822_str_to_iso(self, ts_str):
         try:
             dt = datetime.strptime(ts_str, '%a, %d %b %Y %H:%M:%S %z')
-            return dt.astimezone(timezone.utc).isoformat()
+            return dt.astimezone().isoformat()
         except Exception as e:
             logger.error(f"Error converting {ts_str} to ISO format: {e}", exc_info=True)
             return ts_str
 
     def current_time_in_format(self, fmt="%Y%m%d"):
         return datetime.now().strftime(fmt)
+
+    def val_to_coins(self, val):
+        try:
+            return float(val) / 10**18 # Yepyep
+        except Exception as e:
+            logger.error(f"Error converting value to coins: {e}", exc_info=True)
+            return val
 
 utils = Utils()

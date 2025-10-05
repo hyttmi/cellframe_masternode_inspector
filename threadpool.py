@@ -3,9 +3,9 @@ from logconfig import logger
 
 # global threadpools
 
-threadpool = ThreadPoolExecutor(max_workers=5)
+threadpool = ThreadPoolExecutor()
 
-cacherpool = ThreadPoolExecutor(max_workers=2)
+cacherpool = ThreadPoolExecutor()
 
 def run_on_threadpool(func, *args, **kwargs):
     try:

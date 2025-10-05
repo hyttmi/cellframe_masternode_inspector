@@ -5,6 +5,7 @@ from pycfhelpers.node.http.simple import CFSimpleHTTPServer, CFSimpleHTTPRequest
 from logconfig import logger
 from cacher import cacher
 from masternode_helpers import masternode_helpers
+from updater import updater
 
 def http_server():
     try:
@@ -17,9 +18,8 @@ def http_server():
 
 def main():
     try:
-        supported_node_versions = Config.SUPPORTED_NODE_VERSIONS
         from system_requests import system_requests
-        if system_requests._current_node_version not in supported_node_versions:
+        if system_requests._current_node_version not in Config.SUPPORTED_NODE_VERSIONS:
             logger.error(f"Unsupported node version: {system_requests._current_node_version}. Supported versions are: {', '.join(supported_node_versions)}")
             return 1
         if not masternode_helpers._active_networks_config:
@@ -27,6 +27,7 @@ def main():
             return 1
         Thread(target=cacher.cache_everything, daemon=True).start()
         Thread(target=http_server, daemon=True).start()
+        Thread(target=updater.run, daemon=True).start()
     except Exception as e:
         logger.error(f"Failed to start HTTP server thread: {e}", exc_info=True)
 

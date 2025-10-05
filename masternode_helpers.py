@@ -20,9 +20,9 @@ class MasternodeHelpers:
                 self._node_address = str(net.node_address) # This is the same for all networks so don't write it to network config
                 net_config = self.get_network_config(network_name)
                 if net_config:
+                    net_fee_obj = NetFee(net)
                     self._active_networks_config[network_name] = net_config
-                    self._active_networks_config[network_name]['native_ticker'] = str(NetFee(net).native_ticker)
-
+                    self._active_networks_config[network_name]['native_ticker'] = str(net_fee_obj.native_ticker)
         except Exception as e:
             logger.error(f"Error fetching active networks: {e}")
 
@@ -174,10 +174,10 @@ class MasternodeHelpers:
                 logger.debug(f"Fetched {len(blocks)} {'first signed' if first_signed else 'signed'} blocks for {network}")
                 return blocks if blocks else []
 
-            return None
+            return []
         except Exception as e:
             logger.error(f"An error occurred while fetching signed blocks for {network}: {e}", exc_info=True)
-            return None
+            return []
 
     def get_tx_history(self, network, address):
         logger.debug(f"Fetching tx history for {network} with address {address}")
@@ -200,10 +200,10 @@ class MasternodeHelpers:
                 logger.debug(f"Fetched tx history for {address} on {network}, total records: {len(tx_history)}")
                 return tx_history if tx_history else []
 
-            return None
+            return []
         except Exception as e:
             logger.error(f"An error occurred while fetching rewards collected for {network}: {e}", exc_info=True)
-            return None
+            return []
 
     def get_network_status(self, network):
         try:
@@ -245,26 +245,30 @@ class MasternodeHelpers:
             return network_status
         except Exception as e:
             logger.error(f"An error occurred while checking sync status for {network}: {e}", exc_info=True)
-            return None
+            return []
 
-    def get_sovereign_addr(self, network):
+    def get_node_info(self, network):
         try:
+            node_info = {}
             response = utils.send_request("srv_stake", "list keys", {"net": network}, use_unix=True)
-            sovereign_addr = None
             if response and "result" in response and response['result']:
                 entries = response['result'][0]
                 for entry in entries:
-                    if entry.get("node_addr") == self._node_address:
-                        addr = entry.get("sovereign_addr")
-                        logger.debug(f"Got addr: {addr}")
-                        if addr and addr != "null":
-                            sovereign_addr = addr
-                            logger.debug(f"Sovereign address for {network}: {sovereign_addr}")
-                            break
-            masternode_helpers._active_networks_config[network]['sovereign_addr'] = sovereign_addr
-            return sovereign_addr
+                    if entry.get("node_addr") == self._node_address:  # this is our node
+                        node_info['stake_value'] = entry.get("stake_value")
+                        node_info['effective_value'] = entry.get("effective_value")
+                        node_info['relative_weight'] = entry.get("related_weight")
+                        node_info['tx_hash'] = entry.get("tx_hash")
+                        sovereign_addr = entry.get("sovereign_addr")
+                        if sovereign_addr != "null":
+                            node_info['sovereign_addr'] = sovereign_addr
+                            node_info['sovereign_tax'] = entry.get("sovereign_tax")
+                        break
+                logger.debug(f"Node info for {network}: {node_info}")
+                return node_info
         except Exception as e:
             logger.error(f"An error occurred while fetching sovereign address for {network}: {e}", exc_info=True)
+            return {}
 
     def get_wallet_balance(self, network, address):
         try:
@@ -344,5 +348,4 @@ class MasternodeHelpers:
         except Exception as e:
             logger.error(f"An error occurred while fetching token price: {e}", exc_info=True)
             return None
-
 masternode_helpers = MasternodeHelpers()
