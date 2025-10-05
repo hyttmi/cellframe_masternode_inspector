@@ -164,7 +164,17 @@ def create_config_file():
             return True
 
     # Create config content
-    config_content = """[mninspector]
+    config_content = """
+[server]
+enabled=true
+
+[plugins]
+enabled=true
+# Load Python-based plugins
+py_load=true
+py_path=../var/lib/plugins
+
+[mninspector]
 plugin_url=mninspector
 days_cutoff=20
 block_count_threshold=30
