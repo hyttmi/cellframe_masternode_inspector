@@ -405,7 +405,7 @@ Contributions are welcome! Please:
 
 **Check minimum node version:**
 ```bash
-cellframe-node --version
+cellframe-node-cli version
 ```
 Ensure version is 5.5.0 or higher.
 
