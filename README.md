@@ -95,6 +95,7 @@ Configuration is managed via `/opt/cellframe-node/etc/cellframe-node.cfg.d/mnins
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
+| `autoupdate` | boolean | `true` | Automatically update the plugin **RESTARTS NODE AUTOMATICALLY** |
 | `plugin_url` | string | `mninspector` | URL path for the API endpoint |
 | `days_cutoff` | integer | `20` | Number of days of historical data to cache |
 | `block_count_threshold` | integer | `30` | Minimum blocks before caching network data |
@@ -115,6 +116,7 @@ Example output: `listen_address=[0.0.0.0:51412]` - the port here is `51412`.
 
 ```ini
 [mninspector]
+autoupdate=true
 plugin_url=mninspector
 days_cutoff=60
 block_count_threshold=50
