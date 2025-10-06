@@ -18,9 +18,9 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="7.93"
-     inkscape:cx="60.970996"
-     inkscape:cy="58.070618"
+     inkscape:zoom="5.5068245"
+     inkscape:cx="65.918208"
+     inkscape:cy="35.86459"
      inkscape:window-width="1920"
      inkscape:window-height="1011"
      inkscape:window-x="0"
@@ -53,12 +53,12 @@
      id="rect2" />
   <circle
      cx="50"
-     cy="35"
-     r="12"
-     fill="white"
+     cy="29.849987"
+     r="16.850002"
+     fill="#ffffff"
      opacity="0.9"
      id="circle2"
-     style="opacity:1" />
+     style="opacity:1;stroke-width:1.40418" />
   <circle
      cx="30"
      cy="61"
@@ -75,24 +75,8 @@
      opacity="0.9"
      id="circle4"
      style="stroke-width:1.055;opacity:1" />
-  <line
-     x1="50"
-     y1="47"
-     x2="30"
-     y2="55"
-     stroke="white"
-     stroke-width="3"
-     opacity="0.9"
-     id="line4"
-     style="opacity:1" />
-  <line
-     x1="50"
-     y1="47"
-     x2="70"
-     y2="55"
-     stroke="white"
-     stroke-width="3"
-     opacity="0.9"
-     id="line5"
-     style="opacity:1" />
+  <path
+     id="path1"
+     style="fill:#ffffff;stroke-width:6.58394"
+     d="M 50.777344 51.222656 C 38.89761 50.981582 29.003906 56.097656 29.003906 56.097656 L 36.447266 56.050781 C 42.75261 54.1941 52.213457 52.683058 61.505859 55.892578 L 67.464844 55.855469 C 61.987226 52.548381 56.177223 51.332235 50.777344 51.222656 z " />
 </svg>
