@@ -1,5 +1,5 @@
 {
-    "name": "cellframe-masternode-inspector",
+    "name": "cellframe_masternode_inspector",
     "version": "1.03",
     "author": "Mika Hyttinen (@CELLgainz)",
     "dependencies": [],

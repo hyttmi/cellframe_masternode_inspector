@@ -345,7 +345,7 @@ def main():
     check_node_installed()
 
     # Get installation directory
-    default_plugin_dir = "/opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector"
+    default_plugin_dir = "/opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector"
     plugin_dir = input(f"Installation directory [{default_plugin_dir}]: ").strip() or default_plugin_dir
     plugin_dir = Path(plugin_dir)
 
