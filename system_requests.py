@@ -2,6 +2,7 @@ from sys import platform
 from utils import utils
 from logconfig import logger
 import requests, psutil, socket, time, os
+import platform
 
 class SystemRequests:
     def __init__(self):
