@@ -7,7 +7,6 @@ from cacher import cacher
 from masternode_helpers import masternode_helpers
 from updater import updater
 from packaging import version
-import platform
 
 def http_server():
     try:
@@ -27,8 +26,8 @@ def main():
                 f"Minimum supported version is: {Config.MIN_NODE_VERSION}"
             )
             return 1
-        if platform.system() not in Config.SUPPORTED_PLATFORMS:
-            logger.error(f"Unsupported platform: {platform.system()}. Supported platforms are: {', '.join(Config.SUPPORTED_PLATFORMS)}")
+        if system_requests._current_platform not in Config.SUPPORTED_PLATFORMS:
+            logger.error(f"Unsupported platform: {system_requests._current_platform}. Supported platforms are: {', '.join(Config.SUPPORTED_PLATFORMS)}")
             return 1
         if not masternode_helpers._active_networks_config:
             logger.warning("No active masternode configuration found, this plugin will not function on this node!")

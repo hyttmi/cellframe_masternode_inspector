@@ -10,11 +10,13 @@ class SystemRequests:
         self._hostname = self.get_system_hostname()
         self._is_running_as_service = self.is_running_as_service()
         self._current_node_version = self.get_node_version()
+        self._current_platform = platform.system()
         # These can be initialized here, they are static after all
         logger.info(f"Node PID: {self._node_pid}")
         logger.info(f"Hostname: {self._hostname}")
         logger.info(f"Running as service: {self._is_running_as_service}")
         logger.info(f"Current node version: {self._current_node_version}")
+        logger.info(f"Current platform: {self._current_platform}")
 
     def get_external_ip(self):
         try:
