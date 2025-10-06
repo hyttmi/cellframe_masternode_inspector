@@ -79,7 +79,8 @@ class Updater:
                 system_requests.restart_node()
         except Exception as e:
             logger.error(f"Error during update: {e}", exc_info=True)
-            return False
+            if temp_dir and os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
 
     def get_current_plugin_version(self):
         try:
