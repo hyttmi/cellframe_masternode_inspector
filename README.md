@@ -70,7 +70,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/cellframe-masternode-inspector.git
+   git clone https://github.com/hyttmi/cellframe-masternode-inspector.git
    cd cellframe-masternode-inspector
    ```
 
@@ -86,7 +86,7 @@
 
 4. **Verify installation**
    ```bash
-   cat /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/mninspector.log
+   cat /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/mninspector.log
    ```
 
 ## Configuration
