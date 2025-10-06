@@ -36,7 +36,6 @@ class Actions:
         "node_running_as_service": lambda: system_requests._is_running_as_service,
         "node_uptime": lambda: run_on_threadpool(system_requests.get_node_uptime),
         "plugin_update_available": lambda: updater._update_available,
-        "plugin_autoupdate_enabled": lambda: Config.AUTOUPDATE,
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
     }
 
