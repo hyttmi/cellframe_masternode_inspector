@@ -70,8 +70,8 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/hyttmi/cellframe-masternode-inspector.git
-   cd cellframe-masternode-inspector
+   git clone https://github.com/hyttmi/cellframe_masternode_inspector.git
+   cd cellframe_masternode_inspector
    ```
 
 2. **Run the installer**
@@ -326,8 +326,8 @@ All responses follow this structure:
 ## File Structure
 
 ```
-cellframe-masternode-inspector/
-├── cellframe-masternode-inspector.py  # Main plugin entry point
+cellframe_masternode_inspector/
+├── cellframe_masternode_inspector.py  # Main plugin entry point
 ├── manifest.json                      # Plugin metadata
 ├── requirements.txt                   # Python dependencies
 ├── install.py                         # Automated installer script
@@ -367,7 +367,7 @@ For a modern web-based dashboard interface, check out the companion project:
 **Quick test:**
 ```bash
 # Get your token
-TOKEN=$(cat /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/token.txt)
+TOKEN=$(cat /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/token.txt)
 
 # Find your node's HTTP port (from [server] section)
 PORT=$(grep -A 10 "\[server\]" /opt/cellframe-node/etc/cellframe-node.cfg | grep "listen_address" | grep -oP ':\K\d+')
@@ -389,7 +389,7 @@ debug=true
 
 View logs:
 ```bash
-tail -f /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/mninspector.log
+tail -f /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/mninspector.log
 ```
 
 ### Contributing
@@ -412,7 +412,7 @@ Ensure version is 5.5.0 or higher.
 
 **Check logs:**
 ```bash
-tail -100 /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/mninspector.log
+tail -100 /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/mninspector.log
 ```
 
 **Verify masternode configuration:**
@@ -422,7 +422,7 @@ Ensure at least one network is configured as a masternode in your Cellframe node
 
 **Verify plugin is running:**
 ```bash
-tail -50 /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/mninspector.log
+tail -50 /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/mninspector.log
 ```
 
 **Check plugin URL:**
@@ -442,7 +442,7 @@ curl -v http://localhost:<NODE_PORT>/mninspector?action=help
 
 **Verify token:**
 ```bash
-cat /opt/cellframe-node/var/lib/plugins/cellframe-masternode-inspector/token.txt
+cat /opt/cellframe-node/var/lib/plugins/cellframe_masternode_inspector/token.txt
 ```
 
 **Check token in request:**
@@ -484,7 +484,7 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 ## Support
 
 For issues, feature requests, or questions:
-- Open an issue on [GitHub Issues](https://github.com/yourusername/cellframe-masternode-inspector/issues)
+- Open an issue on [GitHub Issues](https://github.com/hyttmi/cellframe_masternode_inspector/issues)
 - Msg me on Telegram @CELLgainz
 
 ## Acknowledgments
@@ -495,7 +495,7 @@ For issues, feature requests, or questions:
 
 ---
 
-**Current Version**: 1.01
-**Last Updated**: October 5, 2025
+**Current Version**: 1.03
+**Last Updated**: October 6, 2025
 **Author**: Mika Hyttinen (@CELLgainz)
-**Repository**: https://github.com/yourusername/cellframe-masternode-inspector
+**Repository**: https://github.com/hyttmi/cellframe_masternode_inspector
