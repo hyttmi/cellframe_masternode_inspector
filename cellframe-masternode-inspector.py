@@ -19,7 +19,7 @@ def http_server():
 
 def main():
     from system_requests import system_requests
-    if version.parse(system_requests._current_node_version) >= version.parse(Config.MIN_NODE_VERSION):
+    if version.parse(system_requests._current_node_version) < version.parse(Config.MIN_NODE_VERSION):
         logger.error(f"Unsupported node version: {system_requests._current_node_version}. Minimum supported version is: {Config.MIN_NODE_VERSION}")
         raise Exception("Unsupported node version")
     if system_requests._current_platform not in Config.SUPPORTED_PLATFORMS:
