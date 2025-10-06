@@ -4,6 +4,7 @@ from logconfig import logger
 from threadpool import run_on_threadpool
 from masternode_helpers import masternode_helpers
 from updater import updater
+from config import Config
 
 
 def get_cache_for_network(network):
@@ -34,6 +35,8 @@ class Actions:
         "node_pid": lambda: system_requests._node_pid,
         "node_running_as_service": lambda: system_requests._is_running_as_service,
         "node_uptime": lambda: run_on_threadpool(system_requests.get_node_uptime),
+        "plugin_update_available": lambda: updater._update_available,
+        "plugin_autoupdate_enabled": lambda: Config.AUTOUPDATE,
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
     }
 

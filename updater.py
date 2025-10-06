@@ -1,3 +1,4 @@
+from config import Config
 from utils import utils
 import os, json, time
 from packaging import version
@@ -21,9 +22,8 @@ class Updater:
                     f"Current version: {self._current_plugin_version}"
                 )
                 self._update_available = True
-                self._tarball_url = tarball_url
-                self.download_and_update(tarball_url)
-                break
+                if Config.AUTOUPDATE:
+                    self.download_and_update(tarball_url) # Just install the update
             else:
                 logger.info("Plugin is up to date.")
             time.sleep(self._update_interval)

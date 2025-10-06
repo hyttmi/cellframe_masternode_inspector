@@ -5,7 +5,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/license-GPL--3.0-blue.svg" alt="License">
-    <img src="https://img.shields.io/badge/version-1.01-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.03-green.svg" alt="Version">
     <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/platform-Linux-lightgrey.svg" alt="Platform">
   </p>
@@ -168,17 +168,18 @@ curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action
 - `help` - List all available system actions
 - `active_networks` - List of active masternode networks
 - `current_node_version` - Installed Cellframe node version
-- `latest_node_version` - Latest available node version
 - `current_plugin_version` - Installed plugin version
+- `external_ip` - Node external IP address
+- `hostname` - System hostname
+- `latest_node_version` - Latest available node version
 - `latest_plugin_version` - Latest available plugin version
 - `node_cpu_usage` - Node CPU usage percentage
 - `node_memory_usage` - Node memory usage in MB
-- `system_uptime` - System uptime in seconds
-- `node_uptime` - Node process uptime in seconds
-- `external_ip` - Node external IP address
-- `hostname` - System hostname
 - `node_pid` - Node process ID
 - `node_running_as_service` - Whether node runs as systemd service
+- `node_uptime` - Node process uptime in seconds
+- `plugin_update_available` - Plugin update available
+- `system_uptime` - System uptime in seconds
 
 ### Network Actions
 
