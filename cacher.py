@@ -48,8 +48,7 @@ class Cacher:
                     logger.info(f"Caching data for {network}...")
 
                     node_info = masternode_helpers.get_node_info(network) or {}
-                    sovereign_addr = node_info.get("sovereign_addr", None)
-
+                    sovereign_addr = node_info.get("sovereign_reward_wallet_address", None)
 
                     # Async fetch all raw data first
                     futures = {

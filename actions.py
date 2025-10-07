@@ -27,15 +27,6 @@ class Actions:
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
     }
 
-    # -------------------------
-    # Static network actions
-    # -------------------------
-    STATIC_NETWORK_ACTIONS = {
-        "autocollect_status": lambda network: masternode_helpers.get_autocollect_status(network),
-        "network_status": lambda network: masternode_helpers.get_network_status(network),  # live fetch
-        "reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network]["wallet"],
-    }
-
     @staticmethod
     def _resolve_value(val):
         try:
@@ -78,23 +69,6 @@ class Actions:
         return result
 
     @staticmethod
-    def get_network_actions_for(network):
-        if network not in masternode_helpers._active_networks_config:
-            logger.warning(f"Requested network '{network}' is not in active networks config.")
-            return None
-
-        keys = list(Actions.STATIC_NETWORK_ACTIONS.keys())
-
-        sovereign = masternode_helpers._active_networks_config[network].get("sovereign_addr")
-        if sovereign:
-            keys.append("sovereign_reward_wallet_address")
-
-        cache_keys = list(cacher.get_cache(network).keys())
-        keys.extend(cache_keys)
-
-        return sorted(keys)
-
-    @staticmethod
     def parse_network_actions(networks, requested):
         result = {}
 
@@ -104,39 +78,42 @@ class Actions:
                 result[net] = "unsupported network"
                 continue
 
-            actions = dict(Actions.STATIC_NETWORK_ACTIONS)
+            # -------------------------
+            # Core network values
+            # -------------------------
+            actions = {
+                "autocollect_status": masternode_helpers.get_autocollect_status(net),
+                "network_status": masternode_helpers.get_network_status(net),
+                "reward_wallet_address": masternode_helpers._active_networks_config[net]["wallet"]
+            }
 
             sovereign = masternode_helpers._active_networks_config[net].get("sovereign_addr")
             if sovereign:
-                actions["sovereign_reward_wallet_address"] = lambda _: sovereign
+                actions["sovereign_reward_wallet_address"] = sovereign
 
             cache = cacher.get_cache(net)
             if cache:
                 for k, v in cache.items():
-                    actions[k] = lambda _, val=v: val
+                    actions[k] = v
 
-                if "help" in requested:
-                    result[net] = sorted(actions.keys())
-                    continue
+            if "help" in requested:
+                result[net] = sorted(actions.keys())
+                continue
 
-                actions_to_run = (
-                    actions if "all" in requested else {a: actions[a] for a in requested if a in actions}
-                )
+            actions_to_run = actions if "all" in requested else {a: actions[a] for a in requested if a in actions}
 
-                net_result = {}
-                for name, fn in actions_to_run.items():
-                    try:
-                        net_result[name] = fn(net)
-                    except Exception as e:
-                        logger.error(f"Error running action {name} for {net}: {e}", exc_info=True)
-                        net_result[name] = None
+            net_result = {}
+            for name, fn in actions_to_run.items():
+                try:
+                    net_result[name] = fn(net) if callable(fn) else fn
+                except Exception as e:
+                    logger.error(f"Error running action {name} for {net}: {e}", exc_info=True)
+                    net_result[name] = None
 
-                for a in requested:
-                    if a not in actions and a not in ("all", "help"):
-                        net_result[a] = f"unsupported network action: {a}"
+            for a in requested:
+                if a not in actions and a not in ("all", "help"):
+                    net_result[a] = f"unsupported network action: {a}"
 
-                result[net] = net_result
-            else:
-                result[net] = "no cached data available for this network"
+            result[net] = net_result
 
         return result

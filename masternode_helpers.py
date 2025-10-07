@@ -261,7 +261,7 @@ class MasternodeHelpers:
                         node_info['tx_hash'] = entry.get("tx_hash")
                         sovereign_addr = entry.get("sovereign_addr")
                         if sovereign_addr != "null":
-                            node_info['sovereign_addr'] = sovereign_addr
+                            node_info['sovereign_reward_wallet_address'] = sovereign_addr
                             node_info['sovereign_tax'] = entry.get("sovereign_tax")
                         break
                 logger.debug(f"Node info for {network}: {node_info}")
