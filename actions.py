@@ -81,7 +81,7 @@ class Actions:
             if updater._update_available and updater._tarball_url:
                 try:
                     updater.download_and_update(updater._tarball_url)
-                    return {"update_plugin": "Update initiated"}
+                    return {"update_plugin": "Update initiated, node will be restarted!"}
                 except Exception as e:
                     logger.error(f"Error initiating plugin update: {e}", exc_info=True)
                     return {"update_plugin": f"Error initiating update: {e}"}
