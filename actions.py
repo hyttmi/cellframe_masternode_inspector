@@ -111,29 +111,32 @@ class Actions:
                 actions["sovereign_reward_wallet_address"] = lambda _: sovereign
 
             cache = cacher.get_cache(net)
-            for k, v in cache.items():
-                actions[k] = lambda _, val=v: val
+            if cache:
+                for k, v in cache.items():
+                    actions[k] = lambda _, val=v: val
 
-            if "help" in requested:
-                result[net] = sorted(actions.keys())
-                continue
+                if "help" in requested:
+                    result[net] = sorted(actions.keys())
+                    continue
 
-            actions_to_run = (
-                actions if "all" in requested else {a: actions[a] for a in requested if a in actions}
-            )
+                actions_to_run = (
+                    actions if "all" in requested else {a: actions[a] for a in requested if a in actions}
+                )
 
-            net_result = {}
-            for name, fn in actions_to_run.items():
-                try:
-                    net_result[name] = fn(net)
-                except Exception as e:
-                    logger.error(f"Error running action {name} for {net}: {e}", exc_info=True)
-                    net_result[name] = None
+                net_result = {}
+                for name, fn in actions_to_run.items():
+                    try:
+                        net_result[name] = fn(net)
+                    except Exception as e:
+                        logger.error(f"Error running action {name} for {net}: {e}", exc_info=True)
+                        net_result[name] = None
 
-            for a in requested:
-                if a not in actions and a not in ("all", "help"):
-                    net_result[a] = f"unsupported network action: {a}"
+                for a in requested:
+                    if a not in actions and a not in ("all", "help"):
+                        net_result[a] = f"unsupported network action: {a}"
 
-            result[net] = net_result
+                result[net] = net_result
+            else:
+                result[net] = "no cached data available for this network"
 
         return result
