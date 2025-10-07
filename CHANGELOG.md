@@ -2,6 +2,9 @@
 
 ## 1.05
 
+### Fixed
+- Allow HTTP server to send response when update is initiated by passing update process to a threapool.
+
 ## 1.04
 
 ### Added

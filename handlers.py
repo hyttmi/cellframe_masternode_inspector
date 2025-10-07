@@ -65,8 +65,11 @@ def GET_request_handler(headers=None, query=None):
         network_actions_requested = network_actions_requested[0].split(",")
         logger.debug(f"Requested network actions: {network_actions_requested}")
 
-    if network_actions_requested and not networks or networks and not network_actions_requested:
+    if network_actions_requested and not networks:
         return RH.error("Networks must be specified when requesting network actions", code=400)
+
+    if networks and not network_actions_requested:
+        return RH.error("Network actions must be specified when requesting networks", code=400)
 
     result = {}
     if actions_requested:
