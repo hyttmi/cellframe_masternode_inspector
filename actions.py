@@ -79,13 +79,12 @@ class Actions:
 
         if "update_plugin" in actions_requested:
             if updater._update_available and updater._tarball_url:
-                if "update_plugin" in actions_requested:
-                    try:
-                        updater.download_and_update(updater._tarball_url)
-                        return {"update_plugin": "Update initiated"}
-                    except Exception as e:
-                        logger.error(f"Error initiating plugin update: {e}", exc_info=True)
-                        return {"update_plugin": f"Error initiating update: {e}"}
+                try:
+                    updater.download_and_update(updater._tarball_url)
+                    return {"update_plugin": "Update initiated"}
+                except Exception as e:
+                    logger.error(f"Error initiating plugin update: {e}", exc_info=True)
+                    return {"update_plugin": f"Error initiating update: {e}"}
             else:
                 return {"update_plugin": "No update available :("}
 
