@@ -87,10 +87,6 @@ class Actions:
                 "reward_wallet_address": masternode_helpers._active_networks_config[net]["wallet"]
             }
 
-            sovereign = masternode_helpers._active_networks_config[net].get("sovereign_addr")
-            if sovereign:
-                actions["sovereign_reward_wallet_address"] = sovereign
-
             cache = cacher.get_cache(net)
             if cache:
                 for k, v in cache.items():
