@@ -1,5 +1,7 @@
 # Changelog
 
+## 1.05
+
 ## 1.04
 
 ### Added
