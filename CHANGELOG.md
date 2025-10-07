@@ -9,4 +9,4 @@
 - `sovereign_address` from network actions if node is not a sovereign one.
 
 ### Changed
-- `AUTOUPDATE` is now off by default!
+- `AUTOUPDATE` is now off by default.
