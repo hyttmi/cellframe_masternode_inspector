@@ -45,7 +45,7 @@ class Actions:
         if "update_plugin" in actions_requested:
             if updater._update_available and updater._tarball_url:
                 try:
-                    updater.download_and_update(updater._tarball_url)
+                    run_on_threadpool(updater.download_and_update, updater._tarball_url) # we don't really need the result, if it fails, then it fails
                     return {"update_plugin": "Update initiated, node will be restarted!"}
                 except Exception as e:
                     logger.error(f"Error initiating plugin update: {e}", exc_info=True)
