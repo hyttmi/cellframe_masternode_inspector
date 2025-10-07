@@ -182,6 +182,7 @@ curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action
 - `node_uptime` - Node process uptime in seconds
 - `plugin_update_available` - Plugin update available
 - `system_uptime` - System uptime in seconds
+- `update_plugin` - Will update the plugin if update is available
 
 ### Network Actions
 

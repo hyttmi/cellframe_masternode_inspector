@@ -11,6 +11,7 @@ class Updater:
         self._update_interval = 3600
         self._update_available = False
         self._latest_plugin_version = None
+        self._tarball_url = None
 
     def run(self):
         while True:
@@ -22,6 +23,7 @@ class Updater:
                     f"Current version: {self._current_plugin_version}"
                 )
                 self._update_available = True
+                self._tarball_url = tarball_url
                 if Config.AUTOUPDATE:
                     self.download_and_update(tarball_url) # Just install the update
             else:

@@ -4,8 +4,6 @@ from logconfig import logger
 from threadpool import run_on_threadpool
 from masternode_helpers import masternode_helpers
 from updater import updater
-from config import Config
-
 
 def get_cache_for_network(network):
     try:
@@ -45,9 +43,11 @@ class Actions:
     STATIC_NETWORK_ACTIONS = {
         "autocollect_status": lambda network: masternode_helpers.get_autocollect_status(network),
         "network_status": lambda network: masternode_helpers.get_network_status(network),  # live fetch
-        "sovereign_reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network].get("sovereign_addr"),
         "reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network]["wallet"],
     }
+    sovereign_addr = lambda network: masternode_helpers._active_networks_config[network].get("sovereign_addr")
+    if sovereign_addr:
+        STATIC_NETWORK_ACTIONS["sovereign_reward_wallet_address"] = sovereign_addr
 
     @staticmethod
     def _build_network_actions_for(net):
@@ -76,6 +76,15 @@ class Actions:
     def parse_system_actions(actions_requested):
         if "help" in actions_requested:
             return {"available_system_actions": sorted(Actions.SYSTEM_ACTIONS.keys())}
+
+        if updater._update_available and updater._tarball_url:
+            if "update_plugin" in actions_requested:
+                try:
+                    updater.download_and_update(updater._tarball_url)
+                    return {"update_plugin": "Update initiated"}
+                except Exception as e:
+                    logger.error(f"Error initiating plugin update: {e}", exc_info=True)
+                    return {"update_plugin": f"Error initiating update: {e}"}
 
         result = {}
         actions_to_process = (

@@ -1,0 +1,9 @@
+# Changelog
+
+## 1.04
+
+### Added
+- Option to update the plugin via GET request (`update_plugin`) if update is available.
+
+### Removed
+- `sovereign_address` from network actions if node is not a sovereign one.
