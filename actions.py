@@ -4,17 +4,7 @@ from logconfig import logger
 from threadpool import run_on_threadpool
 from masternode_helpers import masternode_helpers
 from updater import updater
-
-def get_cache_for_network(network):
-    try:
-        from cacher import cacher
-        if not cacher:
-            logger.warning("Cacher instance not initialized yet.")
-            return {}
-        return cacher.get_cache(network) or {}
-    except Exception as e:
-        logger.error(f"Error accessing cache for {network}: {e}", exc_info=True)
-        return {}
+from cacher import cacher
 
 class Actions:
     # -------------------------
@@ -45,22 +35,6 @@ class Actions:
         "network_status": lambda network: masternode_helpers.get_network_status(network),  # live fetch
         "reward_wallet_address": lambda network: masternode_helpers._active_networks_config[network]["wallet"],
     }
-    sovereign_addr = lambda network: masternode_helpers._active_networks_config[network].get("sovereign_addr")
-    if sovereign_addr:
-        STATIC_NETWORK_ACTIONS["sovereign_reward_wallet_address"] = sovereign_addr
-
-    @staticmethod
-    def _build_network_actions_for(net):
-        actions = dict(Actions.STATIC_NETWORK_ACTIONS)
-
-        try:
-            cache = get_cache_for_network(net)
-            for key in cache.keys():
-                actions[key] = lambda network, k=key: get_cache_for_network(network).get(k)
-        except Exception as e:
-            logger.error(f"Error while building dynamic NETWORK_ACTIONS for {net}: {e}", exc_info=True)
-
-        return actions
 
     @staticmethod
     def _resolve_value(val):
@@ -104,38 +78,62 @@ class Actions:
         return result
 
     @staticmethod
-    def parse_network_actions(networks, network_actions_requested):
-        if "help" in network_actions_requested:
-            sample_net = next(iter(networks), None)
-            if sample_net:
-                available = sorted(Actions._build_network_actions_for(sample_net).keys())
-            else:
-                available = sorted(Actions.STATIC_NETWORK_ACTIONS.keys())
-            return {"available_network_actions": available}
+    def get_network_actions_for(network):
+        if network not in masternode_helpers._active_networks_config:
+            logger.warning(f"Requested network '{network}' is not in active networks config.")
+            return None
 
+        keys = list(Actions.STATIC_NETWORK_ACTIONS.keys())
+
+        sovereign = masternode_helpers._active_networks_config[network].get("sovereign_addr")
+        if sovereign:
+            keys.append("sovereign_reward_wallet_address")
+
+        cache_keys = list(cacher.get_cache(network).keys())
+        keys.extend(cache_keys)
+
+        return sorted(keys)
+
+    @staticmethod
+    def parse_network_actions(networks, requested):
         result = {}
+
         for net in networks:
             if net not in masternode_helpers._active_networks_config:
                 logger.warning(f"Requested network '{net}' is not in active networks config.")
                 result[net] = "unsupported network"
                 continue
 
-            net_actions = Actions._build_network_actions_for(net)
-            net_result = {}
+            actions = dict(Actions.STATIC_NETWORK_ACTIONS)
 
-            actions_to_process = (
-                list(net_actions.keys())
-                if "all" in network_actions_requested
-                else network_actions_requested
+            sovereign = masternode_helpers._active_networks_config[net].get("sovereign_addr")
+            if sovereign:
+                actions["sovereign_reward_wallet_address"] = lambda _: sovereign
+
+            cache = cacher.get_cache(net)
+            for k, v in cache.items():
+                actions[k] = lambda _, val=v: val
+
+            if "help" in requested:
+                result[net] = sorted(actions.keys())
+                continue
+
+            actions_to_run = (
+                actions if "all" in requested else {a: actions[a] for a in requested if a in actions}
             )
 
-            for action in actions_to_process:
-                if action in net_actions:
-                    net_result[action] = net_actions[action](net)
-                else:
-                    net_result[action] = f"unsupported network action: {action}"
+            net_result = {}
+            for name, fn in actions_to_run.items():
+                try:
+                    net_result[name] = fn(net)
+                except Exception as e:
+                    logger.error(f"Error running action {name} for {net}: {e}", exc_info=True)
+                    net_result[name] = None
 
-            if net_result:
-                result[net] = net_result
+            for a in requested:
+                if a not in actions and a not in ("all", "help"):
+                    net_result[a] = f"unsupported network action: {a}"
+
+            result[net] = net_result
 
         return result
