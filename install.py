@@ -177,6 +177,7 @@ py_path=../var/lib/plugins
 
 [mninspector]
 plugin_url=mninspector
+autoupdate=false
 days_cutoff=20
 block_count_threshold=30
 access_token_entropy=64
