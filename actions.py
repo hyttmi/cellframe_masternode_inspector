@@ -78,9 +78,6 @@ class Actions:
                 result[net] = "unsupported network"
                 continue
 
-            # -------------------------
-            # Core network values
-            # -------------------------
             actions = {
                 "autocollect_status": masternode_helpers.get_autocollect_status(net),
                 "network_status": masternode_helpers.get_network_status(net),

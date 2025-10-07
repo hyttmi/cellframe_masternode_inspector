@@ -10,3 +10,4 @@
 
 ### Changed
 - `AUTOUPDATE` is now off by default.
+- Improved and simplified network action handling a lot.
