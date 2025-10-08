@@ -2,8 +2,11 @@
 
 ## 1.05
 
+### Added
+- Changelog is now also passed to `updater` from Github.
+
 ### Fixed
-- Allow HTTP server to send response when update is initiated by passing update process to a threapool.
+- Allow HTTP server to send response when update is initiated by passing update process to a threadpool.
 
 ## 1.04
 

@@ -12,10 +12,11 @@ class Updater:
         self._update_available = False
         self._latest_plugin_version = None
         self._tarball_url = None
+        self._release_notes = None
 
     def run(self):
         while True:
-            latest_version, tarball_url = self.get_latest_plugin_version_from_github()
+            latest_version, tarball_url, release_notes = self.get_latest_plugin_version_from_github()
             self._latest_plugin_version = latest_version
             if latest_version and self.compare_versions(self._current_plugin_version, latest_version):
                 logger.info(
@@ -24,6 +25,7 @@ class Updater:
                 )
                 self._update_available = True
                 self._tarball_url = tarball_url
+                self._release_notes = release_notes
                 if Config.AUTOUPDATE:
                     self.download_and_update(tarball_url) # Just install the update
             else:
@@ -99,7 +101,7 @@ class Updater:
             response = requests.get("https://api.github.com/repos/hyttmi/cellframe_masternode_inspector/releases/latest")
             if response.status_code == 200:
                 data = response.json()
-                return data.get('tag_name'), data.get("tarball_url")
+                return data.get('tag_name'), data.get("tarball_url"), data.get("body")
             else:
                 logger.error(f"Failed to fetch latest version from GitHub: {response.status_code}")
                 return None, None

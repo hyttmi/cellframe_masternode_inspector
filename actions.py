@@ -27,6 +27,9 @@ class Actions:
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
     }
 
+    if updater._update_available:
+        SYSTEM_ACTIONS["plugin_release_notes"] = lambda: updater._release_notes
+
     @staticmethod
     def _resolve_value(val):
         try:
