@@ -7,7 +7,7 @@ def get_config_value(section, key, default=None):
         return default
 
 class Config:
-    MIN_NODE_VERSION = "5.5.0"
+    MIN_NODE_VERSION = "5.5.1"
     SUPPORTED_PLATFORMS = ["Linux"]
     AUTOUPDATE = bool(get_config_value("mninspector", "autoupdate", False))
     ACCESS_TOKEN_ENTROPY = int(get_config_value("mninspector", "access_token_entropy", 64))
