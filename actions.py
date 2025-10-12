@@ -87,6 +87,12 @@ class Actions:
                 "reward_wallet_address": masternode_helpers._active_networks_config[net]["wallet"]
             }
 
+            if cacher.rewards.get(net):
+                actions["rewards_full"] = cacher.rewards[net]
+
+            if cacher.sovereign_rewards.get(net):
+                actions["sovereign_rewards_full"] = cacher.sovereign_rewards[net]
+
             cache = cacher.get_cache(net)
             if cache:
                 for k, v in cache.items():

@@ -161,9 +161,6 @@ class Cacher:
                     sovereign_tx_today_rewards = sovereign_tx_yesterday_rewards = None
 
                     if tx_history:
-                        utils.save_json_to_file(run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="all"
-                        ).result(), f"{network}_total_rewards.json")
                         self.rewards[network] = tx_history
                         tx_total_rewards = run_on_cacherpool(
                             P.parse_tx_data, tx_history, option="total_rewards"
@@ -194,9 +191,6 @@ class Cacher:
                         ).result()
 
                     if sovereign_tx_history:
-                        utils.save_json_to_file(run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="all"
-                        ).result(), f"{network}_sovereign_total_rewards.json")
                         self.sovereign_rewards[network] = sovereign_tx_history
                         sovereign_tx_total_rewards = run_on_cacherpool(
                             P.parse_tx_data, sovereign_tx_history, option="total_rewards"
