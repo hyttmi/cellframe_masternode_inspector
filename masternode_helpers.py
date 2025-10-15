@@ -254,8 +254,9 @@ class MasternodeHelpers:
             if response and "result" in response and response['result']:
                 entries = response['result'][0]
                 for entry in entries:
-                    if entry.get("active"):
-                        logger.debug(f"Found active entry: {entry} and entry is {type(entry)}")
+                    active_status = entry.get("active", False)
+                    if active_status:
+                        logger.debug(f"Found active entry: {active_status} and type is {type(active_status)}")
                     if entry.get("node_addr") == self._node_address:  # this is our node
                         node_info['stake_value'] = entry.get("stake_value")
                         node_info['effective_value'] = entry.get("effective_value")
