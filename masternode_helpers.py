@@ -250,13 +250,13 @@ class MasternodeHelpers:
     def get_node_info(self, network):
         try:
             node_info = {}
+            total_active_masternodes = 0
             response = utils.send_request("srv_stake", "list keys", {"net": network}, use_unix=True)
             if response and "result" in response and response['result']:
                 entries = response['result'][0]
                 for entry in entries:
-                    active_status = entry.get("active", False)
-                    if active_status:
-                        logger.debug(f"Found active entry: {active_status} and type is {type(active_status)}")
+                    if entry.get("active") == "true":
+                        total_active_masternodes += 1
                     if entry.get("node_addr") == self._node_address:  # this is our node
                         node_info['stake_value'] = entry.get("stake_value")
                         node_info['effective_value'] = entry.get("effective_value")
@@ -267,6 +267,7 @@ class MasternodeHelpers:
                             node_info['sovereign_reward_wallet_address'] = sovereign_addr
                             node_info['sovereign_tax'] = entry.get("sovereign_tax")
                         break
+                node_info['total_active_masternodes'] = total_active_masternodes
                 logger.debug(f"Node info for {network}: {node_info}")
                 return node_info
         except Exception as e:
