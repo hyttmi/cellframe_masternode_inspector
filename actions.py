@@ -24,11 +24,9 @@ class Actions:
         "node_running_as_service": lambda: system_requests._is_running_as_service,
         "node_uptime": lambda: run_on_threadpool(system_requests.get_node_uptime),
         "plugin_update_available": lambda: updater._update_available,
+        "plugin_release_notes": lambda: updater._release_notes,
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
     }
-
-    if updater._update_available:
-        SYSTEM_ACTIONS["plugin_release_notes"] = lambda: updater._release_notes
 
     @staticmethod
     def _resolve_value(val):
