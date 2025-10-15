@@ -5,7 +5,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/license-GPL--3.0-blue.svg" alt="License">
-    <img src="https://img.shields.io/badge/version-1.07-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.08-green.svg" alt="Version">
     <img src="https://img.shields.io/badge/python-3.8+-blue.svg" alt="Python">
     <img src="https://img.shields.io/badge/platform-Linux-lightgrey.svg" alt="Platform">
   </p>
