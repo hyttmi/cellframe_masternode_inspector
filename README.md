@@ -145,24 +145,24 @@ All requests require authentication via `X-API-Key` header or `access_token` que
 
 **Header authentication (recommended):**
 ```bash
-curl -H "X-API-Key: YOUR_TOKEN_HERE" "http://localhost:<NODE_PORT>/mninspector?action=help"
+curl --compressed -H "X-API-Key: YOUR_TOKEN_HERE" "http://localhost:<NODE_PORT>/mninspector?action=help"
 ```
 
 **Query parameter authentication:**
 ```bash
-curl "http://localhost:<NODE_PORT>/mninspector?action=help&access_token=YOUR_TOKEN_HERE"
+curl --compressed "http://localhost:<NODE_PORT>/mninspector?action=help&access_token=YOUR_TOKEN_HERE"
 ```
 
 ### System Actions
 
 **Get all system data:**
 ```bash
-curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action=all"
+curl --compressed -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action=all"
 ```
 
 **Get specific system data:**
 ```bash
-curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action=node_cpu_usage,node_memory_usage,system_uptime"
+curl --compressed -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action=node_cpu_usage,node_memory_usage,system_uptime"
 ```
 
 **Available system actions:**
@@ -181,6 +181,7 @@ curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?action
 - `node_running_as_service` - Whether node runs as systemd service
 - `node_uptime` - Node process uptime in seconds
 - `plugin_update_available` - Plugin update available
+- `plugin_release_notes`- Plugin release notes (if any)
 - `system_uptime` - System uptime in seconds
 - `update_plugin` - Will update the plugin if update is available
 
