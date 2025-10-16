@@ -11,7 +11,7 @@ class Cacher:
         logger.debug("Initializing Cacher...")
         self.cache = {}
         for network in masternode_helpers._active_networks_config:
-                old_cache = utils.load_json_from_file(f"{network}_cache.json")
+                old_cache = utils.load_json_from_file(f".{network}_cache.json") # Hidden file
                 if old_cache:
                     self.cache[network] = old_cache
                     logger.info(f"Loaded old cache for {network} from disk")
@@ -284,7 +284,7 @@ class Cacher:
                     if node_info:
                         new_data.update(node_info)
                     self.cache[network] = new_data
-                    utils.save_json_to_file(new_data, f"{network}_cache.json")
+                    utils.save_json_to_file(new_data, f".{network}_cache.json") # Hidden file
 
                     logger.info(
                         f"Cached data for {network} in {time.time() - start_time:.2f} seconds "
