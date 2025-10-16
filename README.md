@@ -515,7 +515,7 @@ yourname.duckdns.org {
 
 3. **Install Caddy**
 
-   On most Linux systems:
+   On Debian and its derivatives (Ubuntu, Linux Mint etc.) systems:
    ```bash
    sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
@@ -524,6 +524,11 @@ yourname.duckdns.org {
    chmod o+r /etc/apt/sources.list.d/caddy-stable.list
    sudo apt update
    sudo apt install caddy
+   ```
+
+   On Arch Linux:
+   ```bash
+   sudo pacman -S caddy
    ```
    Or see: https://caddyserver.com/docs/install
 
@@ -556,7 +561,7 @@ yourname.duckdns.org {
 
 6. **Test**
 
-   Browse to `https://yourname.duckdns.org/mninspector?action=help`
+   Browse to `https://yourname.duckdns.org/mninspector?action=help?access_token=YOUR_TOKEN`
    Or use curl:
    ```bash
    curl --compressed -H "X-API-Key: YOUR_TOKEN" "https://yourname.duckdns.org/mninspector?action=help"
