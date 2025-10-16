@@ -274,6 +274,18 @@ class MasternodeHelpers:
             logger.error(f"An error occurred while fetching sovereign address for {network}: {e}", exc_info=True)
             return {}
 
+    def get_node_in_node_list(self, network):
+        try:
+            response = utils.cli_command(f"node list -net {network}", timeout=3)
+            if response and self._node_address in response:
+                logger.debug(f"Node address {self._node_address} found in node list for {network}")
+                return True
+            logger.debug(f"Node address {self._node_address} NOT found in node list for {network}")
+            return False
+        except Exception as e:
+            logger.error(f"An error occurred while checking node list for {network}: {e}", exc_info=True)
+            return False
+
     def get_wallet_balance(self, network, address):
         try:
             response = utils.send_request(
@@ -352,4 +364,5 @@ class MasternodeHelpers:
         except Exception as e:
             logger.error(f"An error occurred while fetching token price: {e}", exc_info=True)
             return None
+
 masternode_helpers = MasternodeHelpers()

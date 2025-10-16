@@ -82,6 +82,7 @@ class Actions:
             actions = {
                 "autocollect_status": masternode_helpers.get_autocollect_status(net),
                 "network_status": masternode_helpers.get_network_status(net),
+                "node_in_node_list": masternode_helpers.get_node_in_node_list(net),
                 "reward_wallet_address": masternode_helpers._active_networks_config[net]["wallet"]
             }
 
