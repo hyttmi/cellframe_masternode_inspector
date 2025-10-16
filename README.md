@@ -110,7 +110,7 @@ The HTTP port is configured in your Cellframe node configuration file under the 
 grep -A 10 "\[server\]" /opt/cellframe-node/etc/cellframe-node.cfg | grep "listen_address"
 ```
 
-Example output: `listen_address=[0.0.0.0:51412]` - the port here is `51412`.
+Example output: `listen_address=[0.0.0.0:8079]` - the port here is `8079`.
 
 ### Example Configuration
 
@@ -481,6 +481,103 @@ block_count_threshold=50  # Wait for more blocks before caching
 compress_responses=false
 ```
 
+---
+
+## Reverse Proxy with Caddy (DuckDNS)
+
+Caddy makes it extremely easy to serve your Cellframe Masternode Inspector API securely over HTTPS using a DuckDNS domain (e.g., `yourname.duckdns.org`).
+Caddy will automatically obtain and renew Let's Encrypt SSL certificates—even for dynamic DNS addresses like DuckDNS!
+
+### Caddyfile Example (DuckDNS)
+
+Replace `yourname.duckdns.org` with your actual DuckDNS address.
+If your Cellframe node runs locally, no changes are needed to the `reverse_proxy` line. If it's on another host, adjust as appropriate.
+
+```caddy
+yourname.duckdns.org {
+    reverse_proxy 127.0.0.1:8079
+    encode gzip
+}
+```
+
+- All HTTPS requests to `yourname.duckdns.org` will be securely proxied to your local Cellframe node API on port 8079.
+- Caddy will automatically handle SSL certificates for your DuckDNS domain.
+
+#### Step-by-Step Setup
+
+1. **Point Your DuckDNS Domain to Your Server**
+    - In the [DuckDNS dashboard](https://www.duckdns.org/), make sure your DuckDNS subdomain (e.g. `yourname.duckdns.org`) points to your server's current public IP.
+    - Set up a cron job or DuckDNS client on your server to keep the IP updated.
+
+2. **Open Ports 80 and 443**
+    - Make sure ports 80 (HTTP) and 443 (HTTPS) are forwarded from your router to your server, and are allowed by your firewall.
+      Caddy (and Let's Encrypt) require these ports to be open for SSL certificate validation and HTTPS traffic.
+
+3. **Install Caddy**
+
+   On most Linux systems:
+   ```bash
+   sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+   sudo chmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+   chmod o+r /etc/apt/sources.list.d/caddy-stable.list
+   sudo apt update
+   sudo apt install caddy
+   ```
+   Or see: https://caddyserver.com/docs/install
+
+4. **Configure Your Caddyfile**
+
+   Edit `/etc/caddy/Caddyfile` (or wherever your Caddyfile is located):
+
+   ```caddy
+   yourname.duckdns.org {
+       reverse_proxy 127.0.0.1:8079
+   }
+   ```
+
+   Optionally limit the proxy path to `/mninspector/*`:
+   ```caddy
+   yourname.duckdns.org {
+       reverse_proxy /mninspector/* 127.0.0.1:8079
+   }
+   ```
+
+5. **Restart Caddy**
+
+   ```bash
+   sudo systemctl reload caddy
+   ```
+   Or, if not running as a service:
+   ```bash
+   sudo caddy run --config /etc/caddy/Caddyfile
+   ```
+
+6. **Test**
+
+   Browse to `https://yourname.duckdns.org/mninspector?action=help`
+   Or use curl:
+   ```bash
+   curl --compressed -H "X-API-Key: YOUR_TOKEN" "https://yourname.duckdns.org/mninspector?action=help"
+   ```
+
+#### Notes
+
+- **Automatic HTTPS:** Caddy will obtain and renew certificates for your DuckDNS domain automatically. Just make sure your DuckDNS record remains updated with your current IP.
+- **Firewall/Port Forwarding:** Both ports 80 and 443 must be accessible from the internet for Caddy to get/renew certificates and serve HTTPS.
+- **Access Control:** The API is still protected by the X-API-Key token, but you can further restrict access in Caddy if needed (see [Caddy security modules](https://caddyserver.com/docs/caddyfile/directives)).
+- **No manual SSL needed:** Caddy handles all certificate renewals and reloading for you.
+
+#### References
+
+- [Caddy Reverse Proxy Guide](https://caddyserver.com/docs/quick-starts/reverse-proxy)
+- [Caddyfile Documentation](https://caddyserver.com/docs/caddyfile)
+- [DuckDNS home](https://www.duckdns.org/)
+- [Cellframe Masternode Inspector](https://github.com/hyttmi/cellframe_masternode_inspector)
+
+---
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
@@ -499,7 +596,5 @@ For issues, feature requests, or questions:
 
 ---
 
-**Current Version**: 1.03
-**Last Updated**: October 6, 2025
 **Author**: Mika Hyttinen (@CELLgainz)
 **Repository**: https://github.com/hyttmi/cellframe_masternode_inspector
