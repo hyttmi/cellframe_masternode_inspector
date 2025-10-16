@@ -7,3 +7,6 @@
 
 ### Changed
 - The cache files are now hidden by default.
+
+### Fixed
+- Updater issues.
