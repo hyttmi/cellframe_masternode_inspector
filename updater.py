@@ -18,6 +18,9 @@ class Updater:
         while True:
             latest_version, tarball_url, release_notes = self.get_latest_plugin_version_from_github()
             self._latest_plugin_version = latest_version
+            if not latest_version:
+                logger.error(f"Could not fetch latest plugin version. Going back to sleep for {self._update_interval} seconds...")
+                time.sleep(self._update_interval)
             if latest_version and self.compare_versions(self._current_plugin_version, latest_version):
                 logger.info(
                     f"New plugin version available: {latest_version}. "
@@ -104,11 +107,10 @@ class Updater:
                 return data.get('tag_name'), data.get("tarball_url"), data.get("body")
             else:
                 logger.error(f"Failed to fetch latest version from GitHub: {response.status_code}")
-                return None, None
+                return None, None, None
         except Exception as e:
             logger.error(f"An error occurred while fetching the latest node version: {e}", exc_info=True)
-        return None, None
-
+        return None, None, None
 
     def compare_versions(self, current_version, latest_version):
         return version.parse(current_version) < version.parse(latest_version)
