@@ -97,7 +97,6 @@ class MasternodeHelpers:
             return None
 
     def get_block_count(self, network):
-        logger.debug(f"Fetching block count for {network}")
         try:
             response = utils.send_request(
                 "block",
@@ -112,7 +111,6 @@ class MasternodeHelpers:
             if response:
                 count = response['result'][0]
                 block_count = next(iter(count.values()))
-                logger.debug(f"Fetched block count of {block_count} for {network}")
                 return block_count
             return 0
         except Exception as e:
