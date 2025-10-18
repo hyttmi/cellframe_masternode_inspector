@@ -39,13 +39,32 @@ class Cacher:
 
                     block_diff = current_blocks_on_network - old_blocks_on_network
 
-                    if block_diff < Config.BLOCK_COUNT_THRESHOLD:
+                    last_updated_iso = self.cache.get(network, {}).get("cache_last_updated")
+                    force_refresh = False
+
+                    if last_updated_iso:
+                        try:
+                            from datetime import datetime
+                            last_updated_dt = datetime.fromisoformat(last_updated_iso)
+                            elapsed = time.time() - last_updated_dt.timestamp()
+                            if elapsed >= Config.FORCE_CACHE_REFRESH_INTERVAL:
+                                force_refresh = True
+                        except Exception:
+                            pass
+
+                    if block_diff < Config.BLOCK_COUNT_THRESHOLD and not force_refresh:
                         logger.info(
-                            f"{network}: Block count difference compared to old data is {block_diff} "
-                            f"(old={old_blocks_on_network}, new={current_blocks_on_network}), "
-                            f"which is less than the threshold of {Config.BLOCK_COUNT_THRESHOLD}. Skipping caching this cycle."
+                            f"{network}: Block count diff {block_diff} < {Config.BLOCK_COUNT_THRESHOLD} "
+                            f"and last cache update {elapsed:.0f}s ago < {Config.FORCE_CACHE_REFRESH_INTERVAL}s — skipping this cycle."
                         )
                         continue
+
+                    if force_refresh:
+                        logger.info(
+                            f"{network}: Forcing cache refresh (last updated {elapsed:.0f}s ago, "
+                            f"interval {Config.FORCE_CACHE_REFRESH_INTERVAL}s)"
+                        )
+
 
                     logger.info(f"Caching data for {network}...")
 
