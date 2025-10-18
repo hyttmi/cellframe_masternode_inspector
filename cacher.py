@@ -67,7 +67,7 @@ class Cacher:
                         else:
                             logger.info(
                                 f"{network}: Forcing cache refresh (last updated {elapsed:.0f}s ago, "
-                                f"interval {Config.FORCE_CACHE_REFRESH_INTERVAL}s)"
+                                f"interval {Config.FORCE_CACHE_REFRESH_INTERVAL}s, block diff is {block_diff})"
                             )
 
 
