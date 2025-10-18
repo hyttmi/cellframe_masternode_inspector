@@ -10,7 +10,7 @@ class Config:
     ACCESS_TOKEN_ENTROPY = int(get_config_value("mninspector", "access_token_entropy", 64))
     AUTOUPDATE = bool(get_config_value("mninspector", "autoupdate", False))
     BLOCK_COUNT_THRESHOLD = int(get_config_value("mninspector", "block_count_threshold", 30))
-    FORCE_CACHE_REFRESH_INTERVAL = int(get_config_value("mninspector", "cache_force_refresh_interval", 100))
+    FORCE_CACHE_REFRESH_INTERVAL = int(get_config_value("mninspector", "force_cache_refresh_interval", 3600))
     COMPRESS_RESPONSES = bool(get_config_value("mninspector", "compress_responses", True))
     DAYS_CUTOFF = int(get_config_value("mninspector", "days_cutoff", 20)) # Days
     DEBUG = bool(get_config_value("mninspector", "debug", False))
