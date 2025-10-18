@@ -39,7 +39,7 @@ class Cacher:
 
                     block_diff = current_blocks_on_network - old_blocks_on_network
 
-                    last_updated_iso = self.cache.get(network, {}).get("cache_last_updated")
+                    last_updated_iso = self.cache.get(network, {}).get("cache_last_updated", None)
                     force_refresh = False
 
                     if last_updated_iso:
