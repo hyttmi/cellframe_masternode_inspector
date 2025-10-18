@@ -4,6 +4,7 @@ from threadpool import run_on_cacherpool
 from utils import utils
 from config import Config
 from parsers import Parsers as P
+from datetime import datetime
 import time
 
 class Cacher:
@@ -44,7 +45,6 @@ class Cacher:
 
                     if last_updated_iso:
                         try:
-                            from datetime import datetime
                             last_updated_dt = datetime.fromisoformat(last_updated_iso)
                             elapsed = time.time() - last_updated_dt.timestamp()
                             if elapsed >= Config.FORCE_CACHE_REFRESH_INTERVAL:
@@ -60,10 +60,15 @@ class Cacher:
                         continue
 
                     if force_refresh:
-                        logger.info(
-                            f"{network}: Forcing cache refresh (last updated {elapsed:.0f}s ago, "
-                            f"interval {Config.FORCE_CACHE_REFRESH_INTERVAL}s)"
-                        )
+                        if block_diff <= 0:
+                            logger.info(f"Force refresh was triggered, but block diff between cache "
+                                        f"and network is {block_diff}, skipping cache refresh.")
+                            continue
+                        else:
+                            logger.info(
+                                f"{network}: Forcing cache refresh (last updated {elapsed:.0f}s ago, "
+                                f"interval {Config.FORCE_CACHE_REFRESH_INTERVAL}s)"
+                            )
 
 
                     logger.info(f"Caching data for {network}...")
