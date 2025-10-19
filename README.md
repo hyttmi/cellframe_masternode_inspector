@@ -1,7 +1,7 @@
 <div align="center">
   <img src="logo.svg" alt="Cellframe Masternode Inspector Logo" width="120" height="120">
   <h1>Cellframe Masternode Inspector</h1>
-  <p>Python plugin for Cellframe Node that provides a comprehensive HTTP API for monitoring and managing your masternode. Retrieve real-time system statistics, multi-network blockchain data, rewards tracking, and performance metrics through a simple authenticated REST API.</p>
+  <p>A Python plugin for Cellframe Node that provides a comprehensive HTTP API for monitoring and managing your masternode. Retrieve real-time system statistics, multi-network blockchain data, rewards tracking, and performance metrics through a simple authenticated REST API.</p>
 
   <p>
     <img src="https://img.shields.io/badge/license-GPL--3.0-blue.svg" alt="License">
