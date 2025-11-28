@@ -191,10 +191,12 @@ class MasternodeHelpers:
                 )
 
             if not response or "result" not in response or not response['result']:
+                logger.debug(f"No tx history found for {address} on {network}, result was {response}")
                 return []
 
             if response:
                 tx_history = response['result'][0]
+                logger.debug(f"tx_history raw data: {tx_history}")
                 logger.debug(f"Fetched tx history for {address} on {network}, total records: {len(tx_history)}")
                 return tx_history if tx_history else []
 
