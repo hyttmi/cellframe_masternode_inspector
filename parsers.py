@@ -109,6 +109,7 @@ class Parsers:
                             })
 
             tx_data = results
+            logger.debug(f"f{tx_data}")
 
             if option == "all":
                 return tx_data
