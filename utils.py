@@ -44,7 +44,10 @@ class Utils:
         try:
             resp = self._rpc_session.post(self._rpc_url, data=json.dumps(request_data), headers=self._rpc_session_headers)
             resp.raise_for_status()
-            return resp.json()
+            data = resp.json()
+            if isinstance(data, dict) and "error" in data:
+                raise requests.ConnectionError(f"RPC returned error response: {data['error']}")
+            return data
         except (requests.ConnectionError, RemoteDisconnected) as e:
             logger.warning(f"RPC request failed ({e}), falling back to Unix socket")
             try:
