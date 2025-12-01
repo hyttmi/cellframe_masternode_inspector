@@ -46,7 +46,7 @@ class Utils:
             resp.raise_for_status()
             data = resp.json()
             if isinstance(data, dict) and "error" in data:
-                raise requests.ConnectionError(f"RPC returned error response: {data['error']}")
+                raise requests.ConnectionError(f"RPC returned error response: {data['error']['message']}")
             return data
         except (requests.ConnectionError, RemoteDisconnected) as e:
             logger.warning(f"RPC request failed ({e}), falling back to Unix socket")
