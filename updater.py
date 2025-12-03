@@ -101,7 +101,7 @@ class Updater:
     def get_latest_plugin_version_from_github(self):
         try:
             import requests
-            response = requests.get("https://api.github.com/repos/hyttmi/cellframe_masternode_inspector/releases/latest")
+            response = requests.get("https://api.github.com/repos/hyttmi/cellframe_masternode_inspector/releases/latest", timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 return data.get('tag_name'), data.get("tarball_url"), data.get("body")
