@@ -135,21 +135,17 @@ class Cacher:
                     fsb_daily_sums = None
 
                     if first_signed_blocks:
-                        fsb_total = run_on_cacherpool(P.parse_blocks_data, first_signed_blocks, option="total").result()
-                        fsb_latest = run_on_cacherpool(P.parse_blocks_data, first_signed_blocks, option="latest").result()
-                        fsb_earliest = run_on_cacherpool(P.parse_blocks_data, first_signed_blocks, option="earliest").result()
-                        fsb_today, fsb_today_amount = run_on_cacherpool(
-                            P.parse_blocks_data, first_signed_blocks, option="today"
-                        ).result()
-                        fsb_yesterday, fsb_yesterday_amount = run_on_cacherpool(
-                            P.parse_blocks_data, first_signed_blocks, option="yesterday"
-                        ).result()
-                        fsb_daily, fsb_daily_amount = run_on_cacherpool(
-                            P.parse_blocks_data, first_signed_blocks, option="daily"
-                        ).result()
-                        fsb_daily_sums = run_on_cacherpool(
-                            P.parse_blocks_data, first_signed_blocks, option="daily_sums"
-                        ).result()
+                        fsb_snapshot = run_on_cacherpool(P.parse_blocks_data, first_signed_blocks).result()
+                        fsb_total = fsb_snapshot.get("total")
+                        fsb_latest = fsb_snapshot.get("latest")
+                        fsb_earliest = fsb_snapshot.get("earliest")
+                        fsb_today = fsb_snapshot.get("today")
+                        fsb_today_amount = fsb_snapshot.get("today_amount")
+                        fsb_yesterday = fsb_snapshot.get("yesterday")
+                        fsb_yesterday_amount = fsb_snapshot.get("yesterday_amount")
+                        fsb_daily = fsb_snapshot.get("daily")
+                        fsb_daily_amount = fsb_snapshot.get("daily_amount")
+                        fsb_daily_sums = fsb_snapshot.get("daily_sums")
 
                     sb_total = sb_latest = sb_earliest = None
                     sb_today = sb_today_amount = None
@@ -158,21 +154,17 @@ class Cacher:
                     sb_daily_sums = None
 
                     if signed_blocks:
-                        sb_total = run_on_cacherpool(P.parse_blocks_data, signed_blocks, option="total").result()
-                        sb_latest = run_on_cacherpool(P.parse_blocks_data, signed_blocks, option="latest").result()
-                        sb_earliest = run_on_cacherpool(P.parse_blocks_data, signed_blocks, option="earliest").result()
-                        sb_today, sb_today_amount = run_on_cacherpool(
-                            P.parse_blocks_data, signed_blocks, option="today"
-                        ).result()
-                        sb_yesterday, sb_yesterday_amount = run_on_cacherpool(
-                            P.parse_blocks_data, signed_blocks, option="yesterday"
-                        ).result()
-                        sb_daily, sb_daily_amount = run_on_cacherpool(
-                            P.parse_blocks_data, signed_blocks, option="daily"
-                        ).result()
-                        sb_daily_sums = run_on_cacherpool(
-                            P.parse_blocks_data, signed_blocks, option="daily_sums"
-                        ).result()
+                        sb_snapshot = run_on_cacherpool(P.parse_blocks_data, signed_blocks).result()
+                        sb_total = sb_snapshot.get("total")
+                        sb_latest = sb_snapshot.get("latest")
+                        sb_earliest = sb_snapshot.get("earliest")
+                        sb_today = sb_snapshot.get("today")
+                        sb_today_amount = sb_snapshot.get("today_amount")
+                        sb_yesterday = sb_snapshot.get("yesterday")
+                        sb_yesterday_amount = sb_snapshot.get("yesterday_amount")
+                        sb_daily = sb_snapshot.get("daily")
+                        sb_daily_amount = sb_snapshot.get("daily_amount")
+                        sb_daily_sums = sb_snapshot.get("daily_sums")
 
                     # ----------------------------------------------------------------
                     # Rewards
@@ -186,63 +178,29 @@ class Cacher:
 
                     if tx_history:
                         self.rewards[network] = tx_history
-                        tx_total_rewards = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="total_rewards"
-                        ).result()
-                        tx_latest_reward = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="latest_reward"
-                        ).result()
-                        tx_earliest_reward = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="earliest_reward"
-                        ).result()
-                        tx_daily_rewards = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="daily"
-                        ).result()
-                        tx_biggest_reward = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="biggest"
-                        ).result()
-                        tx_smallest_reward = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="smallest"
-                        ).result()
-                        tx_daily_sums = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="daily_sums"
-                        ).result()
-                        tx_today_rewards = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="today"
-                        ).result()
-                        tx_yesterday_rewards = run_on_cacherpool(
-                            P.parse_tx_data, tx_history, option="yesterday"
-                        ).result()
+                        tx_snapshot = run_on_cacherpool(P.parse_tx_data, tx_history).result()
+                        tx_total_rewards = tx_snapshot.get("total_rewards")
+                        tx_latest_reward = tx_snapshot.get("latest_reward")
+                        tx_earliest_reward = tx_snapshot.get("earliest_reward")
+                        tx_daily_rewards = tx_snapshot.get("daily")
+                        tx_biggest_reward = tx_snapshot.get("biggest")
+                        tx_smallest_reward = tx_snapshot.get("smallest")
+                        tx_daily_sums = tx_snapshot.get("daily_sums")
+                        tx_today_rewards = tx_snapshot.get("today")
+                        tx_yesterday_rewards = tx_snapshot.get("yesterday")
 
                     if sovereign_tx_history:
                         self.sovereign_rewards[network] = sovereign_tx_history
-                        sovereign_tx_total_rewards = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="total_rewards"
-                        ).result()
-                        sovereign_tx_latest_reward = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="latest_reward"
-                        ).result()
-                        sovereign_tx_earliest_reward = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="earliest_reward"
-                        ).result()
-                        sovereign_tx_daily_rewards = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="daily"
-                        ).result()
-                        sovereign_tx_smallest_reward = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="smallest"
-                        ).result()
-                        sovereign_tx_biggest_reward = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="biggest"
-                        ).result()
-                        sovereign_tx_daily_sums = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="daily_sums"
-                        ).result()
-                        sovereign_tx_today_rewards = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="today"
-                        ).result()
-                        sovereign_tx_yesterday_rewards = run_on_cacherpool(
-                            P.parse_tx_data, sovereign_tx_history, option="yesterday"
-                        ).result()
+                        sovereign_tx_snapshot = run_on_cacherpool(P.parse_tx_data, sovereign_tx_history).result()
+                        sovereign_tx_total_rewards = sovereign_tx_snapshot.get("total_rewards")
+                        sovereign_tx_latest_reward = sovereign_tx_snapshot.get("latest_reward")
+                        sovereign_tx_earliest_reward = sovereign_tx_snapshot.get("earliest_reward")
+                        sovereign_tx_daily_rewards = sovereign_tx_snapshot.get("daily")
+                        sovereign_tx_smallest_reward = sovereign_tx_snapshot.get("smallest")
+                        sovereign_tx_biggest_reward = sovereign_tx_snapshot.get("biggest")
+                        sovereign_tx_daily_sums = sovereign_tx_snapshot.get("daily_sums")
+                        sovereign_tx_today_rewards = sovereign_tx_snapshot.get("today")
+                        sovereign_tx_yesterday_rewards = sovereign_tx_snapshot.get("yesterday")
 
                     # ----------------------------------------------------------------
                     # Build cache
@@ -252,7 +210,6 @@ class Cacher:
                         "block_count": current_blocks_on_network,
                         "chain_size": futures["chain_size"].result(),
                         "current_block_reward": futures["current_block_reward"].result(),
-                        "days_cutoff": Config.DAYS_CUTOFF, # We need to know this later
                         "first_signed_blocks_count": fsb_total,
                         "first_signed_blocks_daily_amount": fsb_daily_amount,
                         "first_signed_blocks_daily": fsb_daily,

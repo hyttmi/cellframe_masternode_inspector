@@ -29,74 +29,95 @@ class Parsers:
         return result
 
     @staticmethod
-    def parse_blocks_data(blocks, option="total"):
+    def parse_blocks_data(blocks):
         try:
             if not blocks:
                 logger.warning("No actual blocks found to parse")
-                return (0, 0) if option in ["today", "yesterday", "daily"] else []
-
-            if option == "total":
-                return len(blocks)
-            if option == "latest":
-                return blocks[0]
-            if option == "earliest":
-                return blocks[-1]
-            if option == "all":
-                return blocks
+                return {
+                    "total": None,
+                    "latest": None,
+                    "earliest": None,
+                    "today": None,
+                    "today_amount": None,
+                    "yesterday": None,
+                    "yesterday_amount": None,
+                    "daily": None,
+                    "daily_amount": None,
+                    "daily_sums": None,
+                }
 
             now = datetime.now().astimezone()
-            filtered = []
+            yesterday_date = (now - timedelta(days=1)).date()
 
-            if option == "today":
-                for block in blocks:
-                    ts = datetime.fromisoformat(block['ts_create'])
-                    if ts.date() == now.date():
-                        filtered.append(block)
-                return filtered, len(filtered)
+            today_blocks = []
+            yesterday_blocks = []
+            daily_counts = defaultdict(int)
 
-            if option == "yesterday":
-                yesterday_date = (now - timedelta(days=1)).date()
-                for block in blocks:
-                    ts = datetime.fromisoformat(block['ts_create'])
-                    if ts.date() == yesterday_date:
-                        filtered.append(block)
-                return filtered, len(filtered)
+            for block in blocks:
+                ts = datetime.fromisoformat(block['ts_create'])
+                block_date = ts.date()
+                date_key = block_date.isoformat()
 
-            if option == "daily":
-                for block in blocks:
-                    filtered.append(block)
-                return filtered, len(filtered)
+                daily_counts[date_key] += 1
 
-            if option == "daily_sums":
-                daily_counts = defaultdict(int)
-                for block in blocks:
-                    ts = datetime.fromisoformat(block['ts_create'])
-                    date_key = ts.date().isoformat()
-                    daily_counts[date_key] += 1
-                return [{"date": d, "block_count": v} for d, v in sorted(daily_counts.items())]
+                if block_date == now.date():
+                    today_blocks.append(block)
+                elif block_date == yesterday_date:
+                    yesterday_blocks.append(block)
 
-            logger.warning(f"Unknown option {option} in parse_blocks_data")
-            return None
+            return {
+                "total": len(blocks),
+                "latest": blocks[0],
+                "earliest": blocks[-1],
+                "today": today_blocks,
+                "today_amount": len(today_blocks),
+                "yesterday": yesterday_blocks,
+                "yesterday_amount": len(yesterday_blocks),
+                "daily": blocks,
+                "daily_amount": len(blocks),
+                "daily_sums": [{"date": d, "block_count": v} for d, v in sorted(daily_counts.items())],
+            }
 
         except Exception as e:
             logger.error(f"Error parsing blocks data: {e}", exc_info=True)
-            return None
+            return {
+                "total": None,
+                "latest": None,
+                "earliest": None,
+                "today": None,
+                "today_amount": None,
+                "yesterday": None,
+                "yesterday_amount": None,
+                "daily": None,
+                "daily_amount": None,
+                "daily_sums": None,
+            }
 
     @staticmethod
-    def parse_tx_data(tx_data, option="count"):
+    def parse_tx_data(tx_data):
         try:
             if not tx_data:
                 logger.warning("No actual transactions found to parse")
-                return []
+                return {
+                    "total_rewards": 0,
+                    "latest_reward": None,
+                    "earliest_reward": None,
+                    "daily": [],
+                    "biggest": None,
+                    "smallest": None,
+                    "daily_sums": [],
+                    "today": 0,
+                    "yesterday": 0,
+                }
 
-            results = []
+            reward_txs = []
 
             for tx in tx_data:
                 if tx.get("service") == "block_reward":
                     sub_data = tx.get("data", [])
                     for entry in sub_data:
                         if entry.get("tx_type") == "recv":
-                            results.append({
+                            reward_txs.append({
                                 "tx_hash": tx.get("hash"),
                                 "tx_created": tx.get("tx_created"),
                                 "recv_coins": entry.get("recv_coins"),
@@ -104,56 +125,66 @@ class Parsers:
                                 "source_address": entry.get("source_address")
                             })
 
-            tx_data = results
-
-            if option == "all":
-                return tx_data
-
-            filtered = []
             now = datetime.now().astimezone()
+            yesterday_date = (now - timedelta(days=1)).date()
 
-            # OK, now we have the reward transactions only
-            if option == "total_rewards":
-                return sum(float(tx['recv_coins']) for tx in tx_data if 'recv_coins' in tx)
-            if option == "today":
-                return sum(
-                    float(tx['recv_coins'])
-                    for tx in tx_data
-                    if datetime.fromisoformat(tx['tx_created']).date() == now.date()
-                )
-            if option == "yesterday":
-                yesterday_date = (now - timedelta(days=1)).date()
-                return sum(
-                    float(tx['recv_coins'])
-                    for tx in tx_data
-                    if datetime.fromisoformat(tx['tx_created']).date() == yesterday_date
-                )
-            if option == "latest_reward":
-                return tx_data[0]
-            if option == "earliest_reward":
-                return tx_data[-1]
-            if option == "daily":
-                for tx in tx_data:
-                    filtered.append(tx)
-                return filtered
-            if option == "biggest":
-                return max(
-                    (tx for tx in tx_data if 'recv_coins' in tx),
-                    key=lambda tx: float(tx['recv_coins'])
-                )
-            if option == "smallest":
-                return min(
-                    (tx for tx in tx_data if 'recv_coins' in tx),
-                    key=lambda tx: float(tx['recv_coins'])
-                )
-            if option == "daily_sums":
-                daily_totals = defaultdict(float)
-                for tx in tx_data:
-                    ts = datetime.fromisoformat(tx['tx_created'])
-                    date_key = ts.date().isoformat()
-                    daily_totals[date_key] += float(tx['recv_coins'])
-                return [{"date": d, "total_rewards": v} for d, v in sorted(daily_totals.items())]
+            total_rewards = 0.0
+            today_rewards = 0.0
+            yesterday_rewards = 0.0
+            daily_totals = defaultdict(float)
+            biggest = None
+            smallest = None
+
+            for reward_tx in reward_txs:
+                try:
+                    reward_amount = float(reward_tx.get("recv_coins", 0))
+                except (TypeError, ValueError):
+                    continue
+
+                total_rewards += reward_amount
+
+                if biggest is None or reward_amount > float(biggest.get("recv_coins", 0)):
+                    biggest = reward_tx
+                if smallest is None or reward_amount < float(smallest.get("recv_coins", 0)):
+                    smallest = reward_tx
+
+                tx_created = reward_tx.get("tx_created")
+                if not tx_created:
+                    continue
+
+                try:
+                    tx_date = datetime.fromisoformat(tx_created).date()
+                except Exception:
+                    continue
+
+                daily_totals[tx_date.isoformat()] += reward_amount
+                if tx_date == now.date():
+                    today_rewards += reward_amount
+                elif tx_date == yesterday_date:
+                    yesterday_rewards += reward_amount
+
+            return {
+                "total_rewards": total_rewards,
+                "latest_reward": reward_txs[0] if reward_txs else None,
+                "earliest_reward": reward_txs[-1] if reward_txs else None,
+                "daily": reward_txs,
+                "biggest": biggest,
+                "smallest": smallest,
+                "daily_sums": [{"date": d, "total_rewards": v} for d, v in sorted(daily_totals.items())],
+                "today": today_rewards,
+                "yesterday": yesterday_rewards,
+            }
 
         except Exception as e:
             logger.error(f"Error parsing transaction data: {e}", exc_info=True)
-            return []
+            return {
+                "total_rewards": 0,
+                "latest_reward": None,
+                "earliest_reward": None,
+                "daily": [],
+                "biggest": None,
+                "smallest": None,
+                "daily_sums": [],
+                "today": 0,
+                "yesterday": 0,
+            }
