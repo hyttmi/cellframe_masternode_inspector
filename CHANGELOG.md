@@ -1,12 +1,3 @@
 # Changelog
 
-## 1.12
-
-### Changed
-- Now adds all signed blocks, first signed blocks and all reward transactions to cache.
-- Timeout for fetching changelog (10 seconds).
-- Cache files are now written in compact JSON format to reduce disk usage.
-- Simplified block parsing and transaction parsing to a single-pass version (much more efficient).
-
-### Removed
-- Separate cacherpool.
+## 1.13
