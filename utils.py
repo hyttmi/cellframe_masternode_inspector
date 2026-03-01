@@ -158,7 +158,7 @@ class Utils:
     def save_json_to_file(self, data, filename):
         try:
             with open(os.path.join(self._current_script_path, filename), 'w') as f:
-                json.dump(data, f, indent=4)
+                json.dump(data, f, separators=(",", ":"))
             logger.debug(f"Data successfully saved to {filename}")
         except Exception as e:
             logger.error(f"Error saving data to {filename}: {e}", exc_info=True)

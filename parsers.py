@@ -1,8 +1,7 @@
 from collections import defaultdict
 from logconfig import logger
 from utils import utils
-from datetime import datetime, timedelta, timezone
-from config import Config
+from datetime import datetime, timedelta
 
 class Parsers:
     @staticmethod
@@ -30,7 +29,7 @@ class Parsers:
         return result
 
     @staticmethod
-    def parse_blocks_data(blocks, option="total", days=Config.DAYS_CUTOFF):
+    def parse_blocks_data(blocks, option="total"):
         try:
             if not blocks:
                 logger.warning("No actual blocks found to parse")
@@ -64,11 +63,8 @@ class Parsers:
                 return filtered, len(filtered)
 
             if option == "daily":
-                cutoff = now - timedelta(days=days)
                 for block in blocks:
-                    ts = datetime.fromisoformat(block['ts_create'])
-                    if ts >= cutoff:
-                        filtered.append(block)
+                    filtered.append(block)
                 return filtered, len(filtered)
 
             if option == "daily_sums":
@@ -87,7 +83,7 @@ class Parsers:
             return None
 
     @staticmethod
-    def parse_tx_data(tx_data, option="count", days=Config.DAYS_CUTOFF):
+    def parse_tx_data(tx_data, option="count"):
         try:
             if not tx_data:
                 logger.warning("No actual transactions found to parse")
@@ -137,11 +133,8 @@ class Parsers:
             if option == "earliest_reward":
                 return tx_data[-1]
             if option == "daily":
-                cutoff = now - timedelta(days=days)
                 for tx in tx_data:
-                    ts = datetime.fromisoformat(tx['tx_created'])
-                    if ts >= cutoff:
-                        filtered.append(tx)
+                    filtered.append(tx)
                 return filtered
             if option == "biggest":
                 return max(

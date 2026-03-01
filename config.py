@@ -12,7 +12,6 @@ class Config:
     BLOCK_COUNT_THRESHOLD = int(get_config_value("mninspector", "block_count_threshold", 30))
     FORCE_CACHE_REFRESH_INTERVAL = int(get_config_value("mninspector", "force_cache_refresh_interval", 3600))
     COMPRESS_RESPONSES = bool(get_config_value("mninspector", "compress_responses", True))
-    DAYS_CUTOFF = int(get_config_value("mninspector", "days_cutoff", 20)) # Days
     DEBUG = bool(get_config_value("mninspector", "debug", False))
     MIN_NODE_VERSION = "5.5.1"
     PLUGIN_NAME = str("Cellframe Masternode Inspector")

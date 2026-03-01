@@ -97,7 +97,6 @@ Configuration is managed via `/opt/cellframe-node/etc/cellframe-node.cfg.d/mnins
 |-----------|------|---------|-------------|
 | `autoupdate` | boolean | `true` | Automatically update the plugin **RESTARTS NODE AUTOMATICALLY** |
 | `plugin_url` | string | `mninspector` | URL path for the API endpoint |
-| `days_cutoff` | integer | `20` | Number of days of historical data to cache |
 | `block_count_threshold` | integer | `30` | Minimum blocks before caching network data |
 | `access_token_entropy` | integer | `64` | Token entropy in bytes (16-64) |
 | `compress_responses` | boolean | `true` | Enable gzip compression for responses |
@@ -118,7 +117,6 @@ Example output: `listen_address=[0.0.0.0:8079]` - the port here is `8079`.
 [mninspector]
 autoupdate=true
 plugin_url=mninspector
-days_cutoff=60
 block_count_threshold=50
 access_token_entropy=64
 compress_responses=true
@@ -211,7 +209,6 @@ curl -H "X-API-Key: YOUR_TOKEN" "http://localhost:<NODE_PORT>/mninspector?networ
 - `cache_last_updated` - Last cache update timestamp
 - `chain_size` - Blockchain size in bytes
 - `current_block_reward` - Current block reward amount
-- `days_cutoff` - Days of historical data available
 - `effective_value` - Effective stake value
 - `first_signed_blocks_all_sums_daily` - Sum of first signed blocks per day
 - `first_signed_blocks_count` - Total first signed blocks count
@@ -463,11 +460,6 @@ The cache automatically refreshes when there are enough new blocks since the las
 ## Performance Tuning
 
 ### Cache Settings
-
-**Increase historical data:**
-```ini
-days_cutoff=90  # Store 90 days instead of 20
-```
 
 **Reduce cache frequency** (for slower nodes):
 ```ini
