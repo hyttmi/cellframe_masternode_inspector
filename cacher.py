@@ -1,6 +1,6 @@
 from logconfig import logger
 from masternode_helpers import masternode_helpers
-from threadpool import run_on_cacherpool
+from threadpool import run_on_threadpool
 from utils import utils
 from config import Config
 from parsers import Parsers as P
@@ -78,25 +78,25 @@ class Cacher:
 
                     # Async fetch all raw data first
                     futures = {
-                        "block_count_today": run_on_cacherpool(masternode_helpers.get_blocks_on_network_today, network),
-                        "first_signed_blocks_raw": run_on_cacherpool(masternode_helpers.get_signed_blocks, network, first_signed=True),
-                        "signed_blocks_raw": run_on_cacherpool(masternode_helpers.get_signed_blocks, network),
-                        "tx_history_raw": run_on_cacherpool(
+                        "block_count_today": run_on_threadpool(masternode_helpers.get_blocks_on_network_today, network),
+                        "first_signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network, first_signed=True),
+                        "signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network),
+                        "tx_history_raw": run_on_threadpool(
                             masternode_helpers.get_tx_history,
                             network,
                             masternode_helpers._active_networks_config[network]["wallet"],
                         ),
-                        "current_block_reward": run_on_cacherpool(masternode_helpers.get_current_block_reward, network),
-                        "chain_size": run_on_cacherpool(masternode_helpers.get_chain_size, network),
-                        "token_price": run_on_cacherpool(masternode_helpers.get_token_price, network),
-                        "wallet_balance": run_on_cacherpool(masternode_helpers.get_wallet_balance, network, masternode_helpers._active_networks_config[network]["wallet"]),
+                        "current_block_reward": run_on_threadpool(masternode_helpers.get_current_block_reward, network),
+                        "chain_size": run_on_threadpool(masternode_helpers.get_chain_size, network),
+                        "token_price": run_on_threadpool(masternode_helpers.get_token_price, network),
+                        "wallet_balance": run_on_threadpool(masternode_helpers.get_wallet_balance, network, masternode_helpers._active_networks_config[network]["wallet"]),
                     }
 
                     if sovereign_addr:
-                        futures["sovereign_tx_history_raw"] = run_on_cacherpool(
+                        futures["sovereign_tx_history_raw"] = run_on_threadpool(
                             masternode_helpers.get_tx_history, network, sovereign_addr
                         )
-                        futures["sovereign_wallet_balance"] = run_on_cacherpool(
+                        futures["sovereign_wallet_balance"] = run_on_threadpool(
                             masternode_helpers.get_wallet_balance, network, sovereign_addr
                         )
 
@@ -135,7 +135,7 @@ class Cacher:
                     fsb_daily_sums = None
 
                     if first_signed_blocks:
-                        fsb_snapshot = run_on_cacherpool(P.parse_blocks_data, first_signed_blocks).result()
+                        fsb_snapshot = run_on_threadpool(P.parse_blocks_data, first_signed_blocks).result()
                         fsb_total = fsb_snapshot.get("total")
                         fsb_latest = fsb_snapshot.get("latest")
                         fsb_earliest = fsb_snapshot.get("earliest")
@@ -154,7 +154,7 @@ class Cacher:
                     sb_daily_sums = None
 
                     if signed_blocks:
-                        sb_snapshot = run_on_cacherpool(P.parse_blocks_data, signed_blocks).result()
+                        sb_snapshot = run_on_threadpool(P.parse_blocks_data, signed_blocks).result()
                         sb_total = sb_snapshot.get("total")
                         sb_latest = sb_snapshot.get("latest")
                         sb_earliest = sb_snapshot.get("earliest")
@@ -178,7 +178,7 @@ class Cacher:
 
                     if tx_history:
                         self.rewards[network] = tx_history
-                        tx_snapshot = run_on_cacherpool(P.parse_tx_data, tx_history).result()
+                        tx_snapshot = run_on_threadpool(P.parse_tx_data, tx_history).result()
                         tx_total_rewards = tx_snapshot.get("total_rewards")
                         tx_latest_reward = tx_snapshot.get("latest_reward")
                         tx_earliest_reward = tx_snapshot.get("earliest_reward")
@@ -191,7 +191,7 @@ class Cacher:
 
                     if sovereign_tx_history:
                         self.sovereign_rewards[network] = sovereign_tx_history
-                        sovereign_tx_snapshot = run_on_cacherpool(P.parse_tx_data, sovereign_tx_history).result()
+                        sovereign_tx_snapshot = run_on_threadpool(P.parse_tx_data, sovereign_tx_history).result()
                         sovereign_tx_total_rewards = sovereign_tx_snapshot.get("total_rewards")
                         sovereign_tx_latest_reward = sovereign_tx_snapshot.get("latest_reward")
                         sovereign_tx_earliest_reward = sovereign_tx_snapshot.get("earliest_reward")
