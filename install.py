@@ -181,7 +181,6 @@ autoupdate=false
 block_count_threshold=30
 force_cache_refresh_interval=3600
 compress_responses=true
-days_cutoff=20
 debug=false
 plugin_url=mninspector
 """
