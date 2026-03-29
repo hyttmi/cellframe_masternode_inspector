@@ -26,6 +26,7 @@ class Actions:
         "plugin_update_available": lambda: updater._update_available,
         "plugin_release_notes": lambda: updater._release_notes,
         "system_uptime": lambda: run_on_threadpool(system_requests.get_system_uptime),
+        "system_total_memory": lambda: run_on_threadpool(system_requests.get_system_total_memory)
     }
 
     @staticmethod

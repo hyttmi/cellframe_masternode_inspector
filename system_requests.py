@@ -138,6 +138,16 @@ class SystemRequests:
             logger.error(f"An error occurred while fetching system uptime: {e}", exc_info=True)
             return None
 
+    def get_system_total_memory(self):
+        try:
+            logger.debug("Fetching system total memory...")
+            total_memory = psutil.virtual_memory().total / 1024 / 1024
+            logger.debug(f"System total memory: {round(total_memory, 2)}MB")
+            return round(total_memory, 2)
+        except Exception as e:
+            logger.error(f"An error occurred while fetching system total memory: {e}", exc_info=True)
+            return None
+
     def is_running_as_service(self):
         try:
             logger.debug("Checking if cellframe-node is running as service...")
