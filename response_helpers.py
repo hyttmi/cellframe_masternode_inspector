@@ -10,7 +10,7 @@ class ResponseHelpers:
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Accept-Encoding, Authorization",
+        "Access-Control-Allow-Headers": "Content-Type, Accept-Encoding, Authorization, X-API-Key",
         "Access-Control-Expose-Headers": "Content-Type, Content-Encoding",
     }
 
