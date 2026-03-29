@@ -122,7 +122,6 @@ class Parsers:
                                 "tx_created": tx.get("tx_created"),
                                 "recv_coins": entry.get("recv_coins"),
                                 "token": entry.get("token"),
-                                "source_address": entry.get("source_address")
                             })
 
             now = datetime.now().astimezone()
