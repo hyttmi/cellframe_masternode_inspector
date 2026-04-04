@@ -21,6 +21,32 @@ class Cacher:
         self.rewards = {}
         self.sovereign_rewards = {}
 
+    def _get_incremental_date(self, network, cache_key):
+        blocks = self.cache.get(network, {}).get(cache_key)
+        if blocks and len(blocks) > 0:
+            latest_ts = blocks[0].get("ts_create")
+            if latest_ts:
+                try:
+                    return datetime.fromisoformat(latest_ts).strftime("%y%m%d")
+                except Exception:
+                    pass
+        return None
+
+    @staticmethod
+    def _merge_blocks(existing, new_blocks):
+        seen = {b["block_hash"] for b in existing}
+        merged = list(existing)
+        added = 0
+        for b in new_blocks:
+            if b["block_hash"] not in seen:
+                merged.append(b)
+                seen.add(b["block_hash"])
+                added += 1
+        if added:
+            merged.sort(key=lambda b: b["ts_create"], reverse=True)
+            logger.info(f"Merged {added} new blocks with {len(existing)} cached blocks")
+        return merged
+
     def cache_everything(self):
         try:
             if not masternode_helpers._active_networks_config:
@@ -76,11 +102,14 @@ class Cacher:
                     node_info = masternode_helpers.get_node_info(network) or {}
                     sovereign_addr = node_info.get("sovereign_reward_wallet_address", None)
 
+                    signed_from_date = self._get_incremental_date(network, "signed_blocks_daily")
+                    fsb_from_date = self._get_incremental_date(network, "first_signed_blocks_daily")
+
                     # Async fetch all raw data first
                     futures = {
                         "block_count_today": run_on_threadpool(masternode_helpers.get_blocks_on_network_today, network),
-                        "first_signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network, first_signed=True),
-                        "signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network),
+                        "first_signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network, first_signed=True, from_date=fsb_from_date),
+                        "signed_blocks_raw": run_on_threadpool(masternode_helpers.get_signed_blocks, network, from_date=signed_from_date),
                         "tx_history_raw": run_on_threadpool(
                             masternode_helpers.get_tx_history,
                             network,
@@ -110,11 +139,15 @@ class Cacher:
 
                     raw_fsb = futures["first_signed_blocks_raw"].result() if futures["first_signed_blocks_raw"] else None
                     if raw_fsb:
-                        first_signed_blocks = P.replace_timestamps(raw_fsb, blocks=True)
+                        new_fsb = P.replace_timestamps(raw_fsb, blocks=True)
+                        existing_fsb = self.cache.get(network, {}).get("first_signed_blocks_daily") or []
+                        first_signed_blocks = self._merge_blocks(existing_fsb, new_fsb) if fsb_from_date else new_fsb
 
                     raw_sb = futures["signed_blocks_raw"].result() if futures["signed_blocks_raw"] else None
                     if raw_sb:
-                        signed_blocks = P.replace_timestamps(raw_sb, blocks=True)
+                        new_sb = P.replace_timestamps(raw_sb, blocks=True)
+                        existing_sb = self.cache.get(network, {}).get("signed_blocks_daily") or []
+                        signed_blocks = self._merge_blocks(existing_sb, new_sb) if signed_from_date else new_sb
 
                     raw_tx = futures["tx_history_raw"].result() if futures["tx_history_raw"] else None
                     if raw_tx:

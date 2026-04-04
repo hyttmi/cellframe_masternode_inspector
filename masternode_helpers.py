@@ -144,8 +144,9 @@ class MasternodeHelpers:
             logger.error(f"An error occurred while fetching signed blocks for {network}: {e}", exc_info=True)
             return 0
 
-    def get_signed_blocks(self, network, first_signed=False):
-        logger.debug(f"Fetching {'first signed' if first_signed else 'signed'} blocks for {network}")
+    def get_signed_blocks(self, network, first_signed=False, from_date=None):
+        logger.debug(f"Fetching {'first signed' if first_signed else 'signed'} blocks for {network}"
+                     f"{f' from {from_date}' if from_date else ''}")
         try:
             pkey_hash = self._active_networks_config[network]['cert_pkey_hash']
             args = {
@@ -156,6 +157,8 @@ class MasternodeHelpers:
                 args["pkey_hash"] = pkey_hash
             else:
                 args["cert"] = self._active_networks_config[network]['blocks_sign_cert']
+            if from_date:
+                args["from_date"] = from_date
             response = utils.send_request(
                 "block",
                 f"list {'first_signed' if first_signed else 'signed'}",
