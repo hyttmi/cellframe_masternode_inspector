@@ -1,4 +1,11 @@
 import os, json, re, requests, requests_unixsocket, secrets
+try:
+    import orjson
+    _json_loads = orjson.loads
+    _json_dumps = lambda obj: orjson.dumps(obj).decode()
+except ImportError:
+    _json_loads = json.loads
+    _json_dumps = json.dumps
 from http.client import RemoteDisconnected
 from logconfig import logger
 from datetime import datetime
@@ -34,26 +41,26 @@ class Utils:
 
         if use_unix:
             try:
-                resp = self._unix_session.post(self._unix_url, data=json.dumps(request_data), headers=self._rpc_session_headers)
+                resp = self._unix_session.post(self._unix_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
                 resp.raise_for_status()
-                return resp.json()
+                return _json_loads(resp.content)
             except Exception as e:
                 logger.error(f"Unix socket request failed: {e}", exc_info=True)
                 return None
 
         try:
-            resp = self._rpc_session.post(self._rpc_url, data=json.dumps(request_data), headers=self._rpc_session_headers)
+            resp = self._rpc_session.post(self._rpc_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
             resp.raise_for_status()
-            data = resp.json()
+            data = _json_loads(resp.content)
             if isinstance(data, dict) and "error" in data:
                 raise requests.ConnectionError(f"RPC returned error response: {data['error']['message']}")
             return data
         except (requests.ConnectionError, RemoteDisconnected) as e:
             logger.warning(f"RPC request failed ({e}), falling back to Unix socket")
             try:
-                resp = self._unix_session.post(self._unix_url, data=json.dumps(request_data), headers=self._rpc_session_headers)
+                resp = self._unix_session.post(self._unix_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
                 resp.raise_for_status()
-                return resp.json()
+                return _json_loads(resp.content)
             except Exception as e2:
                 logger.error(f"Unix socket fallback request failed: {e2}", exc_info=True)
                 return None

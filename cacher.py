@@ -32,6 +32,7 @@ class Cacher:
                     return datetime.fromisoformat(latest_ts).strftime("%y%m%d")
                 except Exception:
                     pass
+        logger.debug(f"No valid latest timestamp found for {cache_key} on {network}, returning None for incremental date")
         return None
 
     @staticmethod
