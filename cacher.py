@@ -34,16 +34,20 @@ class Cacher:
 
     @staticmethod
     def _merge_blocks(existing, new_blocks):
-        seen = {b["block_hash"] for b in existing}
+        try:
+            seen = {b["block_hash"] for b in existing if "block_hash" in b}
+        except (TypeError, KeyError):
+            return new_blocks
         merged = list(existing)
         added = 0
         for b in new_blocks:
-            if b["block_hash"] not in seen:
+            bh = b.get("block_hash")
+            if bh and bh not in seen:
                 merged.append(b)
-                seen.add(b["block_hash"])
+                seen.add(bh)
                 added += 1
         if added:
-            merged.sort(key=lambda b: b["ts_create"], reverse=True)
+            merged.sort(key=lambda b: b.get("ts_create", ""), reverse=True)
             logger.info(f"Merged {added} new blocks with {len(existing)} cached blocks")
         return merged
 
