@@ -16,6 +16,7 @@ class Cacher:
                 if old_cache:
                     self.cache[network] = old_cache
                     logger.info(f"Loaded old cache for {network} from disk")
+                    logger.info(f"Old cache was updated at {old_cache.get('cache_last_updated', 'unknown time')}")
                 else:
                     logger.info(f"No old cache file found for {network}, starting fresh")
         self.rewards = {}
@@ -34,17 +35,18 @@ class Cacher:
 
     @staticmethod
     def _merge_blocks(existing, new_blocks):
-        try:
-            seen = {b["block_hash"] for b in existing if "block_hash" in b}
-        except (TypeError, KeyError):
+        if not existing or not isinstance(existing, list):
+            return new_blocks
+        seen = {b["hash"] for b in existing if isinstance(b, dict) and "hash" in b}
+        if not seen:
             return new_blocks
         merged = list(existing)
         added = 0
         for b in new_blocks:
-            bh = b.get("block_hash")
-            if bh and bh not in seen:
+            h = b.get("hash")
+            if h and h not in seen:
                 merged.append(b)
-                seen.add(bh)
+                seen.add(h)
                 added += 1
         if added:
             merged.sort(key=lambda b: b.get("ts_create", ""), reverse=True)
