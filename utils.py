@@ -1,11 +1,5 @@
-import os, json, re, requests, requests_unixsocket, secrets
-try:
-    import orjson
-    _json_loads = orjson.loads
-    _json_dumps = lambda obj: orjson.dumps(obj).decode()
-except ImportError:
-    _json_loads = json.loads
-    _json_dumps = json.dumps
+import os, re, requests, requests_unixsocket, secrets
+import jsonlib
 from http.client import RemoteDisconnected
 from logconfig import logger
 from datetime import datetime
@@ -41,26 +35,26 @@ class Utils:
 
         if use_unix:
             try:
-                resp = self._unix_session.post(self._unix_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
+                resp = self._unix_session.post(self._unix_url, data=jsonlib.dumps(request_data), headers=self._rpc_session_headers)
                 resp.raise_for_status()
-                return _json_loads(resp.content)
+                return jsonlib.loads(resp.content)
             except Exception as e:
                 logger.error(f"Unix socket request failed: {e}", exc_info=True)
                 return None
 
         try:
-            resp = self._rpc_session.post(self._rpc_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
+            resp = self._rpc_session.post(self._rpc_url, data=jsonlib.dumps(request_data), headers=self._rpc_session_headers)
             resp.raise_for_status()
-            data = _json_loads(resp.content)
+            data = jsonlib.loads(resp.content)
             if isinstance(data, dict) and "error" in data:
                 raise requests.ConnectionError(f"RPC returned error response: {data['error']['message']}")
             return data
         except (requests.ConnectionError, RemoteDisconnected) as e:
             logger.warning(f"RPC request failed ({e}), falling back to Unix socket")
             try:
-                resp = self._unix_session.post(self._unix_url, data=_json_dumps(request_data), headers=self._rpc_session_headers)
+                resp = self._unix_session.post(self._unix_url, data=jsonlib.dumps(request_data), headers=self._rpc_session_headers)
                 resp.raise_for_status()
-                return _json_loads(resp.content)
+                return jsonlib.loads(resp.content)
             except Exception as e2:
                 logger.error(f"Unix socket fallback request failed: {e2}", exc_info=True)
                 return None
@@ -164,16 +158,16 @@ class Utils:
 
     def save_json_to_file(self, data, filename):
         try:
-            with open(os.path.join(self._current_script_path, filename), 'w') as f:
-                json.dump(data, f, separators=(",", ":"))
+            with open(os.path.join(self._current_script_path, filename), 'wb') as f:
+                f.write(jsonlib.dumps_bytes(data))
             logger.debug(f"Data successfully saved to {filename}")
         except Exception as e:
             logger.error(f"Error saving data to {filename}: {e}", exc_info=True)
 
     def load_json_from_file(self, filename):
         try:
-            with open(os.path.join(self._current_script_path, filename), 'r') as f:
-                data = json.load(f)
+            with open(os.path.join(self._current_script_path, filename), 'rb') as f:
+                data = jsonlib.loads(f.read())
             logger.debug(f"Data successfully loaded from {filename}")
             return data
         except FileNotFoundError:

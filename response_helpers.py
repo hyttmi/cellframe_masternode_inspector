@@ -1,8 +1,8 @@
-import json
 import gzip
 from pycfhelpers.node.http.simple import CFSimpleHTTPResponse
 from logconfig import logger
 from utils import utils
+import jsonlib
 from config import Config
 
 class ResponseHelpers:
@@ -18,7 +18,7 @@ class ResponseHelpers:
     def _encode_body(data, gzip_enabled=None):
         gzip_enabled = Config.COMPRESS_RESPONSES
 
-        body = json.dumps(data).encode()
+        body = jsonlib.dumps_bytes(data)
         headers = dict(ResponseHelpers.DEFAULT_HEADERS)
 
         if gzip_enabled:

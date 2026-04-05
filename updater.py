@@ -1,6 +1,7 @@
 from config import Config
 from utils import utils
-import os, json, time
+import os, time
+import jsonlib
 from packaging import version
 from logconfig import logger
 from system_requests import system_requests
@@ -92,7 +93,7 @@ class Updater:
     def get_current_plugin_version(self):
         try:
             with open(os.path.join(utils.get_current_script_path(), 'manifest.json'), 'r') as f:
-                data = json.load(f)
+                data = jsonlib.loads(f.read())
                 return data.get('version') # Get the version from manifest.json
         except Exception as e:
             logger.error(f"Error reading current plugin version: {e}", exc_info=True)
