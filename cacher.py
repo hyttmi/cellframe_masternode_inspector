@@ -27,6 +27,7 @@ class Cacher:
         if blocks and len(blocks) > 0:
             latest_ts = blocks[0].get("ts_create")
             if latest_ts:
+                logger.debug(f"Latest timestamp for {cache_key} on {network} is {latest_ts}")
                 try:
                     return datetime.fromisoformat(latest_ts).strftime("%y%m%d")
                 except Exception:
