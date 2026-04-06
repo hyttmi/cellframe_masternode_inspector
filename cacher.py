@@ -4,7 +4,7 @@ from threadpool import run_on_threadpool
 from utils import utils
 from config import Config
 from parsers import Parsers as P
-from CellFrame.Chain import GlobalDB
+from DAP.GlobalDB import DB as GlobalDB
 from datetime import datetime
 import jsonlib
 import time
