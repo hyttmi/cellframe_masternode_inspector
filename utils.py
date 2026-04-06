@@ -156,26 +156,6 @@ class Utils:
                 logger.error(f"Error formatting uptime: {e}", exc_info=True)
                 return seconds
 
-    def save_json_to_file(self, data, filename):
-        try:
-            with open(os.path.join(self._current_script_path, filename), 'wb') as f:
-                f.write(jsonlib.dumps_bytes(data))
-            logger.debug(f"Data successfully saved to {filename}")
-        except Exception as e:
-            logger.error(f"Error saving data to {filename}: {e}", exc_info=True)
-
-    def load_json_from_file(self, filename):
-        try:
-            with open(os.path.join(self._current_script_path, filename), 'rb') as f:
-                data = jsonlib.loads(f.read())
-            logger.debug(f"Data successfully loaded from {filename}")
-            return data
-        except FileNotFoundError:
-            logger.warning(f"File {filename} not found!")
-            return None
-        except Exception as e:
-            logger.error(f"Error loading data from {filename}: {e}", exc_info=True)
-            return None
 
     def now_iso(self):
         return datetime.now().astimezone().isoformat()

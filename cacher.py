@@ -4,23 +4,43 @@ from threadpool import run_on_threadpool
 from utils import utils
 from config import Config
 from parsers import Parsers as P
+from pycfhelpers.node.gdb import CFGDBGroup
 from datetime import datetime
+import jsonlib
 import time
+
+GDB_GROUP = "mninspector.cache"
 
 class Cacher:
     def __init__(self):
         logger.debug("Initializing Cacher...")
         self.cache = {}
+        self._gdb = CFGDBGroup(GDB_GROUP)
         for network in masternode_helpers._active_networks_config:
-                old_cache = utils.load_json_from_file(f".{network}_cache.json") # Hidden file
+                old_cache = self._gdb_load(network)
                 if old_cache:
                     self.cache[network] = old_cache
-                    logger.info(f"Loaded old cache for {network} from disk")
-                    logger.info(f"Old cache was updated at {old_cache.get('cache_last_updated', 'unknown time')}")
+                    logger.info(f"Loaded cache for {network} from GDB")
+                    logger.info(f"Cache was updated at {old_cache.get('cache_last_updated', 'unknown time')}")
                 else:
-                    logger.info(f"No old cache file found for {network}, starting fresh")
+                    logger.info(f"No cache found for {network} in GDB, starting fresh")
         self.rewards = {}
         self.sovereign_rewards = {}
+
+    def _gdb_save(self, network, data):
+        try:
+            self._gdb[network] = jsonlib.dumps_bytes(data)
+        except Exception as e:
+            logger.error(f"Failed to save cache to GDB for {network}: {e}", exc_info=True)
+
+    def _gdb_load(self, network):
+        try:
+            raw = self._gdb.get(network)
+            if raw:
+                return jsonlib.loads(raw)
+        except Exception as e:
+            logger.error(f"Failed to load cache from GDB for {network}: {e}", exc_info=True)
+        return None
 
     def _get_incremental_date(self, network, cache_key):
         blocks = self.cache.get(network, {}).get(cache_key)
@@ -298,11 +318,11 @@ class Cacher:
                     if node_info:
                         new_data.update(node_info)
                     self.cache[network] = new_data
-                    utils.save_json_to_file(new_data, f".{network}_cache.json") # Hidden file
+                    self._gdb_save(network, new_data)
 
                     logger.info(
                         f"Cached data for {network} in {time.time() - start_time:.2f} seconds "
-                        f"(memory + disk updated)"
+                        f"(memory + GDB updated)"
                     )
                 time.sleep(60) # Magic number 60 might be just enough
                 # And boom! We have a cache!

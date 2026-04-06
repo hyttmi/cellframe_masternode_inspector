@@ -8,3 +8,4 @@
 - Token price and wallet balances are now fetched live per request with a 5-minute TTL cache instead of being tied to the block-dependent cache cycle.
 - All JSON serialization now uses `orjson` with fallback to stdlib `json` via centralized `jsonlib` module.
 - Updater now checks if the node version is compatible with the plugin.
+- File based caching is removed and now GlobalDB is used to save the caching data.
