@@ -9,7 +9,7 @@ from datetime import datetime
 import jsonlib
 import time
 
-GDB_GROUP = "mninspector.cache"
+GDB_GROUP = "local.mninspectorcache"
 
 class Cacher:
     def __init__(self):
