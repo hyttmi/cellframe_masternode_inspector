@@ -28,7 +28,8 @@ class Cacher:
 
     def _gdb_save(self, network, data):
         try:
-            GlobalDB.set(network, GDB_GROUP, jsonlib.dumps_bytes(data))
+            if not GlobalDB.set(network, GDB_GROUP, jsonlib.dumps_bytes(data)):
+                logger.warning(f"GDB write failed for {network}")
         except Exception as e:
             logger.error(f"Failed to save cache to GDB for {network}: {e}", exc_info=True)
 
