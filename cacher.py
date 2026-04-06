@@ -4,7 +4,7 @@ from threadpool import run_on_threadpool
 from utils import utils
 from config import Config
 from parsers import Parsers as P
-from pycfhelpers.node.gdb import CFGDBGroup
+from CellFrame.Chain import GlobalDB
 from datetime import datetime
 import jsonlib
 import time
@@ -15,7 +15,6 @@ class Cacher:
     def __init__(self):
         logger.debug("Initializing Cacher...")
         self.cache = {}
-        self._gdb = CFGDBGroup(GDB_GROUP)
         for network in masternode_helpers._active_networks_config:
                 old_cache = self._gdb_load(network)
                 if old_cache:
@@ -29,13 +28,13 @@ class Cacher:
 
     def _gdb_save(self, network, data):
         try:
-            self._gdb[network] = jsonlib.dumps_bytes(data)
+            GlobalDB.set(network, GDB_GROUP, jsonlib.dumps_bytes(data))
         except Exception as e:
             logger.error(f"Failed to save cache to GDB for {network}: {e}", exc_info=True)
 
     def _gdb_load(self, network):
         try:
-            raw = self._gdb.get(network)
+            raw = GlobalDB.get(network, GDB_GROUP)
             if raw:
                 return jsonlib.loads(raw)
         except Exception as e:
