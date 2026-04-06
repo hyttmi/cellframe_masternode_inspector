@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.15
+## 1.50
 
 ### Changed
 - Block cache now fetches incrementally using `-from_date` instead of pulling entire chain history every cycle.
