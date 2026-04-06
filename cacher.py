@@ -125,16 +125,11 @@ class Cacher:
                         ),
                         "current_block_reward": run_on_threadpool(masternode_helpers.get_current_block_reward, network),
                         "chain_size": run_on_threadpool(masternode_helpers.get_chain_size, network),
-                        "token_price": run_on_threadpool(masternode_helpers.get_token_price, network),
-                        "wallet_balance": run_on_threadpool(masternode_helpers.get_wallet_balance, network, masternode_helpers._active_networks_config[network]["wallet"]),
                     }
 
                     if sovereign_addr:
                         futures["sovereign_tx_history_raw"] = run_on_threadpool(
                             masternode_helpers.get_tx_history, network, sovereign_addr
-                        )
-                        futures["sovereign_wallet_balance"] = run_on_threadpool(
-                            masternode_helpers.get_wallet_balance, network, sovereign_addr
                         )
 
                     # ----------------------------------------------------------------
@@ -272,8 +267,6 @@ class Cacher:
                         "signed_blocks_today": sb_today,
                         "signed_blocks_yesterday_amount": sb_yesterday_amount,
                         "signed_blocks_yesterday": sb_yesterday,
-                        "token_price": futures["token_price"].result(),
-                        "reward_wallet_balance": futures["wallet_balance"].result(),
                         "reward_wallet_biggest_reward": tx_biggest_reward,
                         "reward_wallet_daily_rewards": tx_daily_rewards,
                         "reward_wallet_all_sums_daily": tx_daily_sums,
@@ -288,7 +281,6 @@ class Cacher:
                     if sovereign_tx_history:
                         new_data.update(
                             {
-                                "sovereign_wallet_balance": futures["sovereign_wallet_balance"].result(),
                                 "sovereign_wallet_biggest_reward": sovereign_tx_biggest_reward,
                                 "sovereign_wallet_daily_rewards": sovereign_tx_daily_rewards,
                                 "sovereign_wallet_all_sums_daily": sovereign_tx_daily_sums,

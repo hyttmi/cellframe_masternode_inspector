@@ -5,4 +5,5 @@
 ### Changed
 - Block cache now fetches incrementally using `-from_date` instead of pulling entire chain history every cycle.
 - New blocks are merged with existing cache and deduplicated by block hash.
-- Added `orjson` as requirement. ~7.5x faster in parsing transaction data.
+- Token price and wallet balances are now fetched live per request with a 5-minute TTL cache, instead of being tied to the block-dependent cache cycle.
+- All JSON serialization now uses `orjson` with fallback to stdlib `json` via centralized `jsonlib` module.

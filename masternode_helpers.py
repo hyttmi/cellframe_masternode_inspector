@@ -1,13 +1,17 @@
 from logconfig import logger
 from pycfhelpers.node.net import CFNet, NetFee
 from utils import utils
-import re, requests, os
+import re, requests, os, time
 
 class MasternodeHelpers:
+    LIVE_DATA_CACHE_TTL = 300  # 5 minutes
+
     def __init__(self):
         logger.debug("Initializing MasternodeRequests...")
         self._node_address = None
         self._active_networks_config = {}
+        self._token_price_cache = {}
+        self._wallet_balance_cache = {}
         self._get_active_networks()
         logger.debug(f"Active networks (masternode only): {self._active_networks_config}")
         logger.debug(f"Node address: {self._node_address}")
@@ -288,6 +292,14 @@ class MasternodeHelpers:
             return False
 
     def get_wallet_balance(self, network, address):
+        cache_key = f"{network}:{address}"
+        cached = self._wallet_balance_cache.get(cache_key)
+        if cached:
+            balance, ts = cached
+            if time.time() - ts < self.LIVE_DATA_CACHE_TTL:
+                logger.debug(f"Using cached wallet balance for {cache_key}")
+                return balance
+
         try:
             response = utils.send_request(
                 "wallet",
@@ -308,6 +320,7 @@ class MasternodeHelpers:
                 if "token" in t and "coins" in t
             }
 
+            self._wallet_balance_cache[cache_key] = (balances, time.time())
             logger.debug(balances)
             return balances
         except Exception as e:
@@ -337,6 +350,13 @@ class MasternodeHelpers:
             return None
 
     def get_token_price(self, network):
+        cached = self._token_price_cache.get(network)
+        if cached:
+            price, ts = cached
+            if time.time() - ts < self.LIVE_DATA_CACHE_TTL:
+                logger.debug(f"Using cached token price for {network}: {price}")
+                return price
+
         try:
             logger.debug("Fetching token price...")
             network_urls = {
@@ -356,6 +376,7 @@ class MasternodeHelpers:
                 regex_match = re.search(regex_patterns[network.lower()], response.text)
                 if regex_match:
                     token_price = float(regex_match.group(1))
+                    self._token_price_cache[network] = (token_price, time.time())
                     logger.debug(f"Token price for {network} is {token_price}")
                     return token_price
                 logger.warning(f"Price not found in {url}")

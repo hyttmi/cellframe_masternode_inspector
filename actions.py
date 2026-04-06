@@ -80,11 +80,17 @@ class Actions:
                 result[net] = "unsupported network"
                 continue
 
+            wallet_addr = masternode_helpers._active_networks_config[net]["wallet"]
+            sovereign_addr = None
+            node_info = masternode_helpers.get_node_info(net) or {}
+            if node_info:
+                sovereign_addr = node_info.get("sovereign_reward_wallet_address")
+
             actions = {
                 "autocollect_status": masternode_helpers.get_autocollect_status(net),
                 "network_status": masternode_helpers.get_network_status(net),
                 "node_in_node_list": masternode_helpers.get_node_in_node_list(net),
-                "reward_wallet_address": masternode_helpers._active_networks_config[net]["wallet"]
+                "reward_wallet_address": wallet_addr,
             }
 
             if cacher.rewards.get(net):
@@ -97,6 +103,11 @@ class Actions:
             if cache:
                 for k, v in cache.items():
                     actions[k] = v
+
+            actions["token_price"] = masternode_helpers.get_token_price(net)
+            actions["reward_wallet_balance"] = masternode_helpers.get_wallet_balance(net, wallet_addr)
+            if sovereign_addr:
+                actions["sovereign_wallet_balance"] = masternode_helpers.get_wallet_balance(net, sovereign_addr)
 
             if "help" in requested:
                 result[net] = sorted(actions.keys())
