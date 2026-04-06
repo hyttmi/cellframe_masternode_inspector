@@ -14,6 +14,7 @@ class Updater:
         self._latest_plugin_version = None
         self._tarball_url = None
         self._release_notes = None
+        self._update_blocked_reason = None
 
     def run(self):
         while True:
@@ -35,6 +36,18 @@ class Updater:
             else:
                 logger.info("Plugin is up to date.")
             time.sleep(self._update_interval)
+
+    def _get_min_node_version_from_source(self, source_dir):
+        import re
+        config_path = os.path.join(source_dir, 'config.py')
+        try:
+            with open(config_path, 'r') as f:
+                match = re.search(r'MIN_NODE_VERSION\s*=\s*["\']([^"\']+)["\']', f.read())
+                if match:
+                    return match.group(1)
+        except Exception as e:
+            logger.warning(f"Could not read MIN_NODE_VERSION from {config_path}: {e}")
+        return None
 
     def download_and_update(self, tarball_url):
         import tempfile
@@ -64,6 +77,20 @@ class Updater:
                 raise Exception("No directory found in extracted tarball")
 
             source_dir = os.path.join(temp_dir, extracted_dirs[0])
+
+            # make sure the version of node is compatible with the new plugin version before copying files
+            min_ver = self._get_min_node_version_from_source(source_dir)
+            if min_ver:
+                from system_requests import system_requests
+                current_node = system_requests._current_node_version
+                if version.parse(current_node) < version.parse(min_ver):
+                    msg = f"Node {min_ver}+ required"
+                    logger.warning(msg)
+                    self._update_blocked_reason = msg
+                    if temp_dir and os.path.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                    return
+
             dest_dir = utils.get_current_script_path()
 
             logger.info(f"Copying files from {source_dir} to {dest_dir}")

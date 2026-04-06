@@ -45,6 +45,8 @@ class Actions:
             return {"available_system_actions": sorted(Actions.SYSTEM_ACTIONS.keys())}
 
         if "update_plugin" in actions_requested:
+            if updater._update_blocked_reason:
+                return {"update_plugin": updater._update_blocked_reason}
             if updater._update_available and updater._tarball_url:
                 try:
                     run_on_threadpool(updater.download_and_update, updater._tarball_url) # we don't really need the result, if it fails, then it fails

@@ -13,7 +13,7 @@ class Config:
     FORCE_CACHE_REFRESH_INTERVAL = int(get_config_value("mninspector", "force_cache_refresh_interval", 3600))
     COMPRESS_RESPONSES = bool(get_config_value("mninspector", "compress_responses", True))
     DEBUG = bool(get_config_value("mninspector", "debug", False))
-    MIN_NODE_VERSION = "5.5.1"
+    MIN_NODE_VERSION = "5.7.33"
     PLUGIN_NAME = str("Cellframe Masternode Inspector")
     PLUGIN_URL = str(get_config_value("mninspector", "plugin_url", "mninspector"))
     SUPPORTED_PLATFORMS = ["Linux"]
