@@ -156,7 +156,6 @@ class Utils:
                 logger.error(f"Error formatting uptime: {e}", exc_info=True)
                 return seconds
 
-
     def now_iso(self):
         return datetime.now().astimezone().isoformat()
 

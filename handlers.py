@@ -80,4 +80,4 @@ def GET_request_handler(headers=None, query=None):
     return RH.success(result)
 
 def POST_request_handler():
-    return RH.error("POST method not implemented yet!", code=501)
+    return RH.error("POST method not implemented yet!", code=501) # Will never be implemented?

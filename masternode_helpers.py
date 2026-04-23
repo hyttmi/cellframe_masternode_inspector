@@ -276,7 +276,7 @@ class MasternodeHelpers:
                 logger.debug(f"Node info for {network}: {node_info}")
                 return node_info
         except Exception as e:
-            logger.error(f"An error occurred while fetching sovereign address for {network}: {e}", exc_info=True)
+            logger.error(f"An error occurred while fetching node info for {network}: {e}", exc_info=True)
             return {}
 
     def get_node_in_node_list(self, network):
