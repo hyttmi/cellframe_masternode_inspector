@@ -58,11 +58,12 @@
 - **Active Masternode**: At least one active network with masternode configuration
 
 ### Python Dependencies
-- `command_runner>=1.7.4` - System command execution
-- `requests>=2.32.5` - HTTP client for RPC communication
-- `requests_unixsocket>=0.4.1` - Unix socket support
-- `psutil>=7.0.0` - System resource monitoring
-- `packaging>=25.0` - Version comparison utilities
+- `command_runner==1.7.4` - System command execution
+- `requests==2.32.5` - HTTP client for RPC communication
+- `requests_unixsocket==0.4.1` - Unix socket support
+- `psutil==7.0.0` - System resource monitoring
+- `packaging==25.0` - Version comparison utilities
+- `orjson==3.11.8` - JSON parsing
 
 ## Installation
 
