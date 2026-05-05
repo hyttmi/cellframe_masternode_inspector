@@ -1,11 +1,12 @@
 # Changelog
 
-## 1.50
+## 1.51
+
+### Added
+
+- Introduced `exceptions.py` module with dedicated exception classes (`UnsupportedPlatformError`, `UnsupportedNodeVersionError`, `ConfigurationError`, `UpdateError`, `RequestError`)
 
 ### Changed
-- Block cache now fetches incrementally using `-from_date` instead of pulling entire chain history every cycle.
-- New blocks are merged with existing cache and deduplicated by block hash.
-- Token price and wallet balances are now fetched live per request with a 5-minute TTL cache instead of being tied to the block-dependent cache cycle.
-- All JSON serialization now uses `orjson` with fallback to stdlib `json` via centralized `jsonlib` module.
-- Updater now checks if the node version is compatible with the plugin.
-- File based caching is removed and now GlobalDB is used to save the caching data.
+
+- Replaced all generic `Exception` raises with specific `CMIException` subclasses across `cellframe_masternode_inspector.py`, `utils.py`, and `updater.py`
+- Removed non-Linux fallback in `utils.py`, now raises `UnsupportedPlatformError` instead

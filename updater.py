@@ -1,4 +1,5 @@
 from config import Config
+from exceptions import UpdateError
 from utils import utils
 import os, time
 import jsonlib
@@ -74,7 +75,7 @@ class Updater:
 
             extracted_dirs = [d for d in os.listdir(temp_dir) if os.path.isdir(os.path.join(temp_dir, d))]
             if not extracted_dirs:
-                raise Exception("No directory found in extracted tarball")
+                raise UpdateError("No directory found in extracted tarball")
 
             source_dir = os.path.join(temp_dir, extracted_dirs[0])
 

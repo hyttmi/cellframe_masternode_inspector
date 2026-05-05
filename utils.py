@@ -1,4 +1,5 @@
 import os, re, requests, requests_unixsocket, secrets
+from exceptions import UnsupportedPlatformError, RequestError
 import jsonlib
 from http.client import RemoteDisconnected
 from logconfig import logger
@@ -17,8 +18,7 @@ class Utils:
             self._unix_session = requests_unixsocket.Session()
             self._unix_url = "http+unix://%2Fopt%2Fcellframe-node%2Fvar%2Frun%2Fnode_cli/connect"
         else:
-            self._unix_session = requests.Session()
-            self._unix_url = "http://127.0.0.1:12345"
+            raise UnsupportedPlatformError("Not running on Linux")
         self._rpc_url = "http://dev.rpc.cellframe.net"
         self._rpc_session_headers = {"Content-Type": "application/json"}
 
@@ -47,9 +47,9 @@ class Utils:
             resp.raise_for_status()
             data = jsonlib.loads(resp.content)
             if isinstance(data, dict) and "error" in data:
-                raise requests.ConnectionError(f"RPC returned error response: {data['error']['message']}")
+                raise RequestError(f"RPC returned error response: {data['error']['message']}")
             return data
-        except (requests.ConnectionError, RemoteDisconnected) as e:
+        except (requests.ConnectionError, RemoteDisconnected, RequestError) as e:
             logger.warning(f"RPC request failed ({e}), falling back to Unix socket")
             try:
                 resp = self._unix_session.post(self._unix_url, data=jsonlib.dumps(request_data), headers=self._rpc_session_headers)
