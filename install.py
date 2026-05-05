@@ -40,6 +40,11 @@ def print_warning(text):
 def print_info(text):
     print(f"{Colors.OKCYAN}ℹ {text}{Colors.ENDC}")
 
+def is_supported_os():
+    if sys.platform != "linux":
+        print_error("This installer is only for Linux")
+        sys.exit(1)
+
 def check_root():
     """Check if running as root/sudo"""
     if os.geteuid() != 0:
@@ -342,6 +347,7 @@ def main():
     print_header("Cellframe Masternode Inspector - Installer")
 
     # Checks
+    is_supported_os()
     check_root()
     check_node_installed()
 
