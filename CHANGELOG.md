@@ -5,6 +5,7 @@
 ### Added
 
 - Introduced `exceptions.py` module with dedicated exception classes (`UnsupportedPlatformError`, `UnsupportedNodeVersionError`, `ConfigurationError`, `UpdateError`, `RequestError`)
+- Added `plugin_logs` system action to fetch the last 5000 log lines from an in-memory debug ring buffer via GET request.
 
 ### Changed
 

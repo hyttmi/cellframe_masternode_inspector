@@ -19,10 +19,12 @@ class ResponseHelpers:
         gzip_enabled = Config.COMPRESS_RESPONSES
 
         body = jsonlib.dumps_bytes(data)
+        logger.debug(f"Body uncompressed size: {len(body)} bytes")
         headers = dict(ResponseHelpers.DEFAULT_HEADERS)
 
         if gzip_enabled:
             body = gzip.compress(body)
+            logger.debug(f"Body compressed size: {len(body)} bytes")
             headers["Content-Encoding"] = "gzip"
 
         return body, headers

@@ -160,6 +160,15 @@ class SystemRequests:
             logger.error(f"An error occurred while checking service status: {e}", exc_info=True)
             return False
 
+    def get_plugin_logs(self):
+        try:
+            from logconfig import ring_handler
+            logger.debug("Fetching logs from the ring buffer...")
+            return ring_handler.get_logs()
+        except Exception as e:
+            logger.error(f"An error occurred while fetching plugin logs: {e}", exc_info=True)
+            return None
+
     def restart_node(self):
         try:
             logger.debug("Restarting cellframe-node...")

@@ -19,6 +19,7 @@ class Actions:
         "latest_node_version": lambda: run_on_threadpool(utils.get_latest_node_version),
         "latest_plugin_version": lambda: updater._latest_plugin_version,
         "node_cpu_usage": lambda: run_on_threadpool(system_requests.get_node_cpu_usage),
+        "plugin_logs": lambda: run_on_threadpool(system_requests.get_plugin_logs),
         "node_memory_usage": lambda: run_on_threadpool(system_requests.get_node_memory_usage),
         "node_pid": lambda: system_requests._node_pid,
         "node_running_as_service": lambda: system_requests._is_running_as_service,
